@@ -9,3 +9,8 @@ next-env.d.ts
 !.claude/skills/
 .DS_Store
 Thumbs.db
+
+# raw photos dropped in the folder
+/*.jpeg
+/*.jpg
+/portable-taste/

@@ -19,15 +19,6 @@ export const nav = [
   { href: "#faq", label: "FAQ" },
 ];
 
-export const ribbonWords = [
-  "Evidence-based",
-  "Emotion regulation",
-  "Trauma-informed",
-  "Safe & seen",
-  "Neurodiversity-affirming",
-  "At your own pace",
-];
-
 export type Tone = "sky" | "blue" | "pink" | "paper" | "butter";
 export type DoodleName =
   | "star" | "sparkle" | "heart" | "flower" | "cat" | "arrow" | "squiggle"
@@ -137,7 +128,7 @@ export const approaches = [
     title: "When words aren't enough.",
     body: "Work with inner imagery and sensory memory to gently loosen emotional knots that talking alone can't reach.",
     note: "“what do you see?”",
-    color: "var(--butter-deep)",
+    color: "#7b8db8",
   },
 ];
 

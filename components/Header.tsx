@@ -1,35 +1,57 @@
 "use client";
 
 import Image from "next/image";
-import { AnimatePresence, motion, useMotionValueEvent, useScroll, useSpring } from "framer-motion";
-import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
 import { nav } from "@/lib/content";
 import { GumButton } from "./GumButton";
 import { useSound } from "./SoundProvider";
 import { Doodle } from "./Doodles";
 
 export function Header() {
-  const { scrollY, scrollYProgress } = useScroll();
-  const progress = useSpring(scrollYProgress, { stiffness: 120, damping: 30, mass: 0.3 });
-  const [hidden, setHidden] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const header = useRef<HTMLElement>(null);
   const [hovered, setHovered] = useState<string | null>(null);
   const [active, setActive] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
-  const { enabled, toggle, play } = useSound();
+  const openRef = useRef(false);
+  const { enabled, toggle } = useSound();
 
-  // Tuck the header away while reading down the page, bring it back on any scroll up.
-  useMotionValueEvent(scrollY, "change", (y) => {
-    const prev = scrollY.getPrevious() ?? 0;
-    setScrolled(y > 24);
-    setHidden(y > 320 && y > prev + 4 && !open);
-    if (y < prev - 4) setHidden(false);
-  });
+  // Scroll handling without React re-renders: read scrollY once per frame and write data
+  // attributes plus one transform. The bar only hides or shows after 48px of travel in one
+  // direction, so the small movements when scrolling stops can't make it bounce.
+  useEffect(() => {
+    let lastY = window.scrollY;
+    let travel = 0;
+    let ticking = false;
+    const el = header.current!;
+    const progress = el.querySelector<HTMLElement>(".site-header__progress")!;
+    const update = () => {
+      ticking = false;
+      const y = window.scrollY;
+      const dy = y - lastY;
+      lastY = y;
+      travel = Math.sign(dy) === Math.sign(travel) ? travel + dy : dy;
+      el.dataset.scrolled = y > 24 ? "true" : "false";
+      if (y < 240 || openRef.current) el.dataset.hidden = "false";
+      else if (travel > 48) el.dataset.hidden = "true";
+      else if (travel < -48) el.dataset.hidden = "false";
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      progress.style.transform = `scaleX(${max > 0 ? Math.min(1, y / max) : 0})`;
+    };
+    const onScroll = () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(update);
+      }
+    };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   // Highlight the section currently on screen.
   useEffect(() => {
-    const ids = nav.map((n) => n.href.slice(1));
-    const els = ids.map((id) => document.getElementById(id)).filter(Boolean) as HTMLElement[];
+    const els = nav.map((n) => document.getElementById(n.href.slice(1))).filter(Boolean) as HTMLElement[];
     const io = new IntersectionObserver(
       (entries) => {
         for (const e of entries) if (e.isIntersecting) setActive(`#${e.target.id}`);
@@ -41,6 +63,8 @@ export function Header() {
   }, []);
 
   useEffect(() => {
+    openRef.current = open;
+    if (open && header.current) header.current.dataset.hidden = "false";
     document.documentElement.style.overflow = open ? "hidden" : "";
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
     window.addEventListener("keydown", onKey);
@@ -51,12 +75,7 @@ export function Header() {
 
   return (
     <>
-      <motion.header
-        className={`site-header${scrolled ? " is-scrolled" : ""}`}
-        initial={{ y: -120 }}
-        animate={{ y: hidden ? -130 : 0 }}
-        transition={{ type: "spring", stiffness: 260, damping: 30 }}
-      >
+      <header ref={header} className="site-header" data-hidden="false" data-scrolled="false">
         <div className="site-header__bar">
           <a className="brand" href="#top" aria-label="ImPsychOut, back to top">
             <span className="brand__sticker">
@@ -83,7 +102,7 @@ export function Header() {
                   <motion.span
                     layoutId="nav-pill"
                     className="site-nav__pill"
-                    transition={{ type: "spring", stiffness: 420, damping: 34 }}
+                    transition={{ type: "tween", duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
                   />
                 )}
                 <span className="site-nav__label">{item.label}</span>
@@ -92,10 +111,6 @@ export function Header() {
           </nav>
 
           <div className="site-header__actions">
-            <span className="status" title="Currently taking new clients">
-              <span className="status__dot" aria-hidden="true" />
-              Accepting new clients
-            </span>
             <button
               type="button"
               className={`sound-toggle${enabled ? " is-on" : ""}`}
@@ -105,10 +120,10 @@ export function Header() {
               title={enabled ? "Sound on" : "Sound off"}
             >
               {[0, 1, 2, 3].map((i) => (
-                <span key={i} className="sound-toggle__bar" style={{ animationDelay: `${i * 0.13}s` }} />
+                <span key={i} className="sound-toggle__bar" />
               ))}
             </button>
-            <GumButton href="#book" variant="pink" className="site-header__cta">
+            <GumButton href="#book" className="site-header__cta">
               Book a consultation
             </GumButton>
             <button
@@ -117,28 +132,25 @@ export function Header() {
               aria-expanded={open}
               aria-controls="mobile-menu"
               aria-label={open ? "Close menu" : "Open menu"}
-              onClick={() => {
-                setOpen((o) => !o);
-                play("page", { volume: 0.25 });
-              }}
+              onClick={() => setOpen((o) => !o)}
             >
               <span />
               <span />
             </button>
           </div>
         </div>
-        <motion.div className="site-header__progress" style={{ scaleX: progress }} aria-hidden="true" />
-      </motion.header>
+        <div className="site-header__progress" aria-hidden="true" />
+      </header>
 
       <AnimatePresence>
         {open && (
           <motion.div
             id="mobile-menu"
             className="mobile-sheet"
-            initial={{ clipPath: "circle(0% at calc(100% - 44px) 44px)" }}
-            animate={{ clipPath: "circle(150% at calc(100% - 44px) 44px)" }}
-            exit={{ clipPath: "circle(0% at calc(100% - 44px) 44px)" }}
-            transition={{ duration: 0.55, ease: [0.65, 0, 0.35, 1] }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
           >
             <nav aria-label="Mobile">
               {nav.map((item, i) => (
@@ -146,21 +158,18 @@ export function Header() {
                   key={item.href}
                   href={item.href}
                   onClick={() => setOpen(false)}
-                  initial={{ opacity: 0, y: 30, rotate: -2 }}
-                  animate={{ opacity: 1, y: 0, rotate: 0 }}
-                  transition={{ delay: 0.15 + i * 0.06, type: "spring", stiffness: 300, damping: 24 }}
+                  initial={{ opacity: 0, y: 14 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.08 + i * 0.05, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
                 >
                   {item.label}
                 </motion.a>
               ))}
             </nav>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}>
-              <GumButton href="#book" size="lg" block onClick={() => setOpen(false)}>
-                Book a consultation
-              </GumButton>
-            </motion.div>
+            <GumButton href="#book" size="lg" block onClick={() => setOpen(false)}>
+              Book a consultation
+            </GumButton>
             <Doodle name="cat" className="mobile-sheet__cat" />
-            <Doodle name="star" className="mobile-sheet__star" />
           </motion.div>
         )}
       </AnimatePresence>

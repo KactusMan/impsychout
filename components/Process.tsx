@@ -29,11 +29,11 @@ export function Process() {
         }
         gsap.utils.toArray<HTMLElement>(".step").forEach((step, i) => {
           gsap.from(step, {
-            y: 70,
-            rotation: i % 2 ? 6 : -6,
+            y: 24,
             opacity: 0,
-            duration: 0.9,
-            ease: "back.out(1.6)",
+            duration: 0.8,
+            delay: i * 0.06,
+            ease: "power2.out",
             scrollTrigger: { trigger: step, start: "top 88%" },
           });
         });
@@ -51,7 +51,7 @@ export function Process() {
           eyebrow="What to expect"
           title={
             <>
-              Starting therapy shouldn&apos;t feel <span className="hl">scary</span>.
+              Starting therapy shouldn&apos;t feel scary.
             </>
           }
           sub="Here's the gentle, four-step path from first hello to steady growth."

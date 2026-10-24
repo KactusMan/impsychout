@@ -1,10 +1,13 @@
-import type { ReactNode } from "react";
+"use client";
 
-// Gumroad-style button: the face lifts up and left on hover, revealing two
-// stacked colour layers underneath. Pressing it pushes everything back flat.
+import type { ReactNode } from "react";
+import { useSound } from "./SoundProvider";
+
+// Stacked button: the face lifts up and left on hover, showing two layers in her blues
+// underneath. Pressing it flattens everything and plays one soft note.
 type Props = {
   children: ReactNode;
-  variant?: "pink" | "ink" | "paper" | "sky";
+  variant?: "ink" | "paper";
   size?: "md" | "lg";
   block?: boolean;
   className?: string;
@@ -13,7 +16,8 @@ type Props = {
   | ({ href?: undefined } & Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "className" | "children">)
 );
 
-export function GumButton({ children, variant = "pink", size = "md", block, className = "", ...rest }: Props) {
+export function GumButton({ children, variant = "ink", size = "md", block, className = "", ...rest }: Props) {
+  const { play } = useSound();
   const cls = `gum gum--${variant} gum--${size}${block ? " gum--block" : ""} ${className}`;
   const inner = (
     <>
@@ -22,15 +26,16 @@ export function GumButton({ children, variant = "pink", size = "md", block, clas
       <span className="gum__face">{children}</span>
     </>
   );
+  const onPointerDown = () => play("button");
   if ("href" in rest && rest.href !== undefined) {
     return (
-      <a className={cls} data-sfx-hover="kalimba" {...(rest as React.AnchorHTMLAttributes<HTMLAnchorElement>)}>
+      <a className={cls} onPointerDown={onPointerDown} {...(rest as React.AnchorHTMLAttributes<HTMLAnchorElement>)}>
         {inner}
       </a>
     );
   }
   return (
-    <button className={cls} data-sfx-hover="kalimba" {...(rest as React.ButtonHTMLAttributes<HTMLButtonElement>)}>
+    <button className={cls} onPointerDown={onPointerDown} {...(rest as React.ButtonHTMLAttributes<HTMLButtonElement>)}>
       {inner}
     </button>
   );

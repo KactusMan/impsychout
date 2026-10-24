@@ -15,7 +15,7 @@ export function Approach() {
   const select = (i: number, focus = false) => {
     if (i === current) return;
     setCurrent(i);
-    play("page", { volume: 0.3 });
+    play("paper");
     if (focus) tabs.current[i]?.focus();
   };
 
@@ -58,7 +58,6 @@ export function Approach() {
                 style={{ ["--c" as string]: ap.color }}
                 onClick={() => select(i)}
                 onKeyDown={(e) => onKey(e, i)}
-                data-sfx-press="none"
               >
                 {ap.tab}
               </button>
@@ -73,10 +72,10 @@ export function Approach() {
                 role="tabpanel"
                 id={`panel-${a.id}`}
                 aria-labelledby={`tab-${a.id}`}
-                initial={{ opacity: 0, y: 18, rotateX: -8 }}
-                animate={{ opacity: 1, y: 0, rotateX: 0 }}
-                exit={{ opacity: 0, y: -12 }}
-                transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+                initial={{ opacity: 0, x: 16 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -16 }}
+                transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
               >
                 <div>
                   <p className="folder__kicker">{a.name}</p>
@@ -85,9 +84,9 @@ export function Approach() {
                 </div>
                 <motion.div
                   className="folder__note hand"
-                  initial={{ rotate: 12, scale: 0.85, opacity: 0 }}
-                  animate={{ rotate: 3, scale: 1, opacity: 1 }}
-                  transition={{ delay: 0.12, type: "spring", stiffness: 260, damping: 14 }}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
                 >
                   {a.note}
                 </motion.div>

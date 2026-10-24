@@ -1,20 +1,17 @@
 "use client";
 
-import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 import { site } from "@/lib/content";
 import { Doodle } from "./Doodles";
 import { GumButton } from "./GumButton";
 import { Reveal } from "./Reveal";
-import { useSound } from "./SoundProvider";
 
 type Status = { kind: "idle" | "sending" | "ok" | "error" | "offline"; text?: string };
 
 export function Booking() {
   const [status, setStatus] = useState<Status>({ kind: "idle" });
   const [invalid, setInvalid] = useState<Record<string, boolean>>({});
-  const { play } = useSound();
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -43,7 +40,6 @@ export function Booking() {
         return;
       }
       if (!res.ok) throw new Error();
-      play("success", { volume: 0.35 });
       setStatus({ kind: "ok", text: `thank you, ${data.name.trim().split(" ")[0]} ♡ I'll reply within one working day.` });
       form.reset();
     } catch {
@@ -68,16 +64,6 @@ export function Booking() {
               then decide.
             </p>
           </Reveal>
-          <Reveal className="book__photo polaroid" rotate={-3} delay={0.1}>
-            <span className="tape tape--pink" style={{ ["--r" as string]: "-5deg", top: -14, left: "34%" }} />
-            <Image
-              src="/images/laraib-arch.jpg"
-              alt="Laraib under a flower-covered archway"
-              width={960}
-              height={1280}
-              sizes="(max-width: 860px) 60vw, 22vw"
-            />
-          </Reveal>
           <Reveal className="note book__note" rotate={-1.5} delay={0.15}>
             <span className="tape tape--blue" style={{ ["--r" as string]: "-5deg", top: -12, left: 24 }} />
             <p>
@@ -93,7 +79,7 @@ export function Booking() {
 
         <Reveal>
           <form className="intake" onSubmit={onSubmit} noValidate aria-describedby="intake-help">
-            <span className="tape tape--butter" style={{ ["--r" as string]: "3deg", top: -12, right: 60 }} />
+            <span className="tape tape--pink" style={{ ["--r" as string]: "3deg", top: -12, right: 60 }} />
             <h3 className="display">Request a consultation</h3>
             <p id="intake-help" className="intake__help">Fields marked * are required.</p>
 
@@ -157,7 +143,7 @@ export function Booking() {
               </span>
             </label>
 
-            <GumButton type="submit" size="lg" block disabled={status.kind === "sending"} variant="ink">
+            <GumButton type="submit" size="lg" block disabled={status.kind === "sending"}>
               {status.kind === "sending" ? "Sending..." : "Send my request"}
             </GumButton>
 
