@@ -1,0 +1,24 @@
+# ImPsychOut
+
+> Online therapy with Laraib Fatima Ahmed, a clinical psychologist (MSc Clinical Psychology, Graduate Member of the British Psychological Society). Sessions are online over secure video for teens, young adults and adults. New clients can request a free 15-minute consultation.
+
+## Key facts
+
+- Practitioner: Laraib Fatima Ahmed, Clinical Psychologist
+- Format: online video sessions, worldwide
+- Who: teens (with a parent or guardian involved at first contact), young adults and adults
+- Approaches: CBT, DBT, ACT, REBT, Positive Behaviour Management, Eidetic therapy
+- Areas of focus: anxiety and panic, depression and low mood, OCD and intrusive thoughts, neurodiversity and autism, personality disorders, schizophrenia-spectrum, individual therapy, psychological assessment
+- Training: MSc Clinical Psychology (Merit), BS (Hons) Psychology (Air University), Psychological First Aid (Johns Hopkins University), Good Clinical Practice (NIDA)
+- Experience: Sit With It Therapy Hub, Autism Life Centres (UK), PAF Hospital Psychiatric Department
+- Not an emergency service. People in immediate danger should contact local emergency services.
+
+## How to get in touch
+
+- Request a free consultation: the form at /#book (fields: name, email, optional phone, who the therapy is for, focus area, optional message, and a consent checkbox)
+- Instagram: https://www.instagram.com/impsychout/
+
+## Pages
+
+- [Home](/): everything above, plus FAQs at /#faq
+- [Sitemap](/sitemap.xml)

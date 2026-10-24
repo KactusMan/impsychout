@@ -1,8 +1,11 @@
-.vercel
-.claude/
 node_modules/
-.DS_Store
-Thumbs.db
-
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo
 .vercel
 .env*
+.claude/*
+!.claude/skills/
+.DS_Store
+Thumbs.db
