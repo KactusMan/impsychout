@@ -12,11 +12,11 @@ export const site = {
 };
 
 export const nav = [
-  { href: "#about", label: "About" },
-  { href: "#focus", label: "How I help" },
-  { href: "#approach", label: "Approach" },
-  { href: "#process", label: "How it works" },
-  { href: "#faq", label: "FAQ" },
+  { href: "/#about", label: "About" },
+  { href: "/#focus", label: "How I help" },
+  { href: "/#approach", label: "Approach" },
+  { href: "/#process", label: "How it works" },
+  { href: "/#faq", label: "FAQ" },
 ];
 
 export type Tone = "sky" | "blue" | "pink" | "paper" | "butter";

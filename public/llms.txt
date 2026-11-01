@@ -20,5 +20,14 @@
 
 ## Pages
 
-- [Home](/): everything above, plus FAQs at /#faq
+- [Home](/): who Laraib is, how sessions work, FAQs at /#faq
+- [How I help](/services): all services
+- [Online therapy for anxiety and panic](/services/anxiety-and-panic)
+- [Online therapy for depression and low mood](/services/depression-and-low-mood)
+- [Online therapy for OCD and intrusive thoughts](/services/ocd-and-intrusive-thoughts)
+- [Neurodiversity-affirming therapy for autism and ADHD](/services/neurodiversity-and-autism)
+- [DBT-informed therapy for personality disorders](/services/personality-disorders)
+- [Psychological support for schizophrenia-spectrum conditions](/services/schizophrenia-spectrum)
+- [Individual online therapy and counselling](/services/individual-therapy)
+- [Online psychological assessment](/services/psychological-assessment)
 - [Sitemap](/sitemap.xml)

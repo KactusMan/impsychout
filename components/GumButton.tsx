@@ -1,10 +1,7 @@
-"use client";
-
 import type { ReactNode } from "react";
-import { useSound } from "./SoundProvider";
 
 // Stacked button: the face lifts up and left on hover, showing two layers in her blues
-// underneath. Pressing it flattens everything and plays one soft note.
+// underneath, with a soft note. Pressing flattens everything with a padded tap.
 type Props = {
   children: ReactNode;
   variant?: "ink" | "paper";
@@ -17,7 +14,6 @@ type Props = {
 );
 
 export function GumButton({ children, variant = "ink", size = "md", block, className = "", ...rest }: Props) {
-  const { play } = useSound();
   const cls = `gum gum--${variant} gum--${size}${block ? " gum--block" : ""} ${className}`;
   const inner = (
     <>
@@ -26,16 +22,16 @@ export function GumButton({ children, variant = "ink", size = "md", block, class
       <span className="gum__face">{children}</span>
     </>
   );
-  const onPointerDown = () => play("button");
+  const sfx = { "data-sfx-hover": "note", "data-sfx-press": "tap" };
   if ("href" in rest && rest.href !== undefined) {
     return (
-      <a className={cls} onPointerDown={onPointerDown} {...(rest as React.AnchorHTMLAttributes<HTMLAnchorElement>)}>
+      <a className={cls} {...sfx} {...(rest as React.AnchorHTMLAttributes<HTMLAnchorElement>)}>
         {inner}
       </a>
     );
   }
   return (
-    <button className={cls} onPointerDown={onPointerDown} {...(rest as React.ButtonHTMLAttributes<HTMLButtonElement>)}>
+    <button className={cls} {...sfx} {...(rest as React.ButtonHTMLAttributes<HTMLButtonElement>)}>
       {inner}
     </button>
   );

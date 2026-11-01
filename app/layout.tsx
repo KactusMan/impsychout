@@ -1,6 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { Chewy, Fraunces, Gochi_Hand, Onest } from "next/font/google";
 import { site } from "@/lib/content";
+import { DoodleSprite } from "@/components/Doodles";
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Sections";
 import { SoundProvider } from "@/components/SoundProvider";
 import "./globals.css";
 
@@ -72,7 +75,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en-GB" className={`${fraunces.variable} ${onest.variable} ${chewy.variable} ${gochi.variable}`}>
       <body>
-        <SoundProvider>{children}</SoundProvider>
+        <SoundProvider>
+          <DoodleSprite />
+          <a className="skip" href="#main">
+            Skip to content
+          </a>
+          <Header />
+          <main id="main">{children}</main>
+          <Footer />
+        </SoundProvider>
       </body>
     </html>
   );

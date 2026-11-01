@@ -16,25 +16,16 @@ export function Header() {
   const openRef = useRef(false);
   const { enabled, toggle } = useSound();
 
-  // Scroll handling without React re-renders: read scrollY once per frame and write data
-  // attributes plus one transform. The bar only hides or shows after 48px of travel in one
-  // direction, so the small movements when scrolling stops can't make it bounce.
+  // Scroll handling without React re-renders: read scrollY once per frame and write a data
+  // attribute plus one transform. The bar always stays in view.
   useEffect(() => {
-    let lastY = window.scrollY;
-    let travel = 0;
     let ticking = false;
     const el = header.current!;
     const progress = el.querySelector<HTMLElement>(".site-header__progress")!;
     const update = () => {
       ticking = false;
       const y = window.scrollY;
-      const dy = y - lastY;
-      lastY = y;
-      travel = Math.sign(dy) === Math.sign(travel) ? travel + dy : dy;
       el.dataset.scrolled = y > 24 ? "true" : "false";
-      if (y < 240 || openRef.current) el.dataset.hidden = "false";
-      else if (travel > 48) el.dataset.hidden = "true";
-      else if (travel < -48) el.dataset.hidden = "false";
       const max = document.documentElement.scrollHeight - window.innerHeight;
       progress.style.transform = `scaleX(${max > 0 ? Math.min(1, y / max) : 0})`;
     };
@@ -51,10 +42,10 @@ export function Header() {
 
   // Highlight the section currently on screen.
   useEffect(() => {
-    const els = nav.map((n) => document.getElementById(n.href.slice(1))).filter(Boolean) as HTMLElement[];
+    const els = nav.map((n) => document.getElementById(n.href.split("#")[1])).filter(Boolean) as HTMLElement[];
     const io = new IntersectionObserver(
       (entries) => {
-        for (const e of entries) if (e.isIntersecting) setActive(`#${e.target.id}`);
+        for (const e of entries) if (e.isIntersecting) setActive(`/#${e.target.id}`);
       },
       { rootMargin: "-45% 0px -50% 0px" }
     );
@@ -64,7 +55,6 @@ export function Header() {
 
   useEffect(() => {
     openRef.current = open;
-    if (open && header.current) header.current.dataset.hidden = "false";
     document.documentElement.style.overflow = open ? "hidden" : "";
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
     window.addEventListener("keydown", onKey);
@@ -77,7 +67,7 @@ export function Header() {
     <>
       <header ref={header} className="site-header" data-hidden="false" data-scrolled="false">
         <div className="site-header__bar">
-          <a className="brand" href="#top" aria-label="ImPsychOut, back to top">
+          <a className="brand" href="/" aria-label="ImPsychOut home">
             <span className="brand__sticker">
               <Image src="/images/logo.png" alt="" width={48} height={48} priority />
             </span>
@@ -93,6 +83,7 @@ export function Header() {
                 key={item.href}
                 href={item.href}
                 className={`site-nav__link${active === item.href ? " is-active" : ""}`}
+                data-sfx-hover="tick"
                 aria-current={active === item.href ? "true" : undefined}
                 onMouseEnter={() => setHovered(item.href)}
                 onFocus={() => setHovered(item.href)}
@@ -115,6 +106,7 @@ export function Header() {
               type="button"
               className={`sound-toggle${enabled ? " is-on" : ""}`}
               onClick={toggle}
+              data-sfx-press="tap"
               aria-pressed={enabled}
               aria-label={enabled ? "Turn sound effects off" : "Turn sound effects on"}
               title={enabled ? "Sound on" : "Sound off"}

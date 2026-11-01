@@ -2,6 +2,8 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
+import { useRef, useState, type CSSProperties, type ReactNode, type RefObject } from "react";
+import { useSound } from "./SoundProvider";
 import { Doodle } from "./Doodles";
 import { GumButton } from "./GumButton";
 
@@ -17,7 +19,51 @@ const fade = (delay: number) => ({
   transition: { delay, duration: 0.9, ease },
 });
 
+// A collage piece you can pick up and move around, but only inside the collage box.
+function Piece({
+  box,
+  className,
+  style,
+  rest = 0,
+  z,
+  children,
+}: {
+  box: RefObject<HTMLDivElement | null>;
+  className: string;
+  style?: CSSProperties;
+  rest?: number;
+  z: number;
+  children: ReactNode;
+}) {
+  const { play } = useSound();
+  const [lift, setLift] = useState(z);
+  return (
+    <motion.div
+      className={`piece ${className}`}
+      style={{ ...style, rotate: rest, zIndex: lift }}
+      drag
+      dragConstraints={box}
+      dragElastic={0.08}
+      dragMomentum={false}
+      dragTransition={{ bounceStiffness: 300, bounceDamping: 30 }}
+      whileHover={{ scale: 1.02 }}
+      whileDrag={{ scale: 1.05, rotate: rest * 0.4, cursor: "grabbing" }}
+      onDragStart={() => {
+        setLift(20); // whatever you pick up comes to the top of the pile
+        play("tap");
+      }}
+      onDragEnd={() => {
+        setLift(z + 10);
+        play("tap");
+      }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
 export function Hero() {
+  const box = useRef<HTMLDivElement>(null);
   return (
     <section className="hero" id="top" aria-labelledby="hero-title">
       <div className="hero__blob" aria-hidden="true" />
@@ -76,32 +122,52 @@ export function Hero() {
         </motion.ul>
       </div>
 
-      <motion.div className="hero__collage" aria-hidden="true" {...fade(0.2)}>
-        <figure className="polaroid hero__polaroid">
-          <span className="tape tape--pink" style={{ ["--r" as string]: "-6deg", top: -16, left: "38%" }} />
-          <Image
-            src="/images/laraib-portrait.jpg"
-            alt=""
-            width={960}
-            height={781}
-            priority
-            sizes="(max-width: 860px) 80vw, 34vw"
-          />
-          <figcaption className="hand">hi, I&apos;m Laraib ♡</figcaption>
-        </figure>
+      <motion.div className="hero__collage" ref={box} {...fade(0.2)}>
+        <p className="hero__drag-hint hand" aria-hidden="true">
+          psst, you can move things around
+        </p>
+        <Piece box={box} className="hero__polaroid" rest={2.5} z={3}>
+          <figure className="polaroid">
+            <span className="tape tape--pink" style={{ ["--r" as string]: "-6deg", top: -16, left: "38%" }} />
+            <Image
+              src="/images/laraib-portrait.jpg"
+              alt="Laraib Fatima Ahmed, clinical psychologist"
+              width={960}
+              height={781}
+              priority
+              draggable={false}
+              sizes="(max-width: 860px) 80vw, 34vw"
+            />
+            <figcaption className="hand">hi, I&apos;m Laraib ♡</figcaption>
+          </figure>
+        </Piece>
 
-        <div className="note hero__note">
-          <span className="tape tape--blue" style={{ ["--r" as string]: "5deg", top: -12, left: 22 }} />
-          <p className="hand">a place to uncomplicate your thoughts &amp; heal at your own pace</p>
-        </div>
+        <Piece box={box} className="hero__note" rest={-4} z={4}>
+          <div className="note">
+            <span className="tape tape--blue" style={{ ["--r" as string]: "5deg", top: -12, left: 22 }} />
+            <p className="hand">a place to uncomplicate your thoughts &amp; heal at your own pace</p>
+          </div>
+        </Piece>
 
-        <span className="sticker sticker--blue" style={{ top: "6%", right: "4%" }}>Trauma-informed</span>
-        <span className="sticker sticker--pink" style={{ top: "58%", left: "2%" }}>Safe &amp; seen</span>
-        <span className="sticker sticker--butter" style={{ bottom: "8%", right: "8%" }}>Emotion regulation</span>
+        <Piece box={box} className="hero__sticker" style={{ top: "6%", right: "4%" }} rest={5} z={6}>
+          <span className="sticker sticker--blue">Trauma-informed</span>
+        </Piece>
+        <Piece box={box} className="hero__sticker" style={{ top: "58%", left: "2%" }} rest={-6} z={6}>
+          <span className="sticker sticker--pink">Safe &amp; seen</span>
+        </Piece>
+        <Piece box={box} className="hero__sticker" style={{ bottom: "8%", right: "8%" }} rest={3} z={6}>
+          <span className="sticker sticker--butter">Emotion regulation</span>
+        </Piece>
 
-        <Doodle name="star" className="doodle" style={{ top: "4%", left: "14%", width: "clamp(36px, 3vw, 54px)", color: "var(--butter)" }} />
-        <Doodle name="cat" className="doodle doodle--float" style={{ top: "34%", right: "-1%", width: "clamp(52px, 4vw, 76px)" }} />
-        <Doodle name="sparkle" className="doodle" style={{ top: "30%", left: "0%", width: "clamp(26px, 2vw, 40px)", color: "var(--cornflower)" }} />
+        <Piece box={box} className="hero__doodle" style={{ top: "4%", left: "14%", width: "clamp(36px, 3vw, 54px)" }} z={5}>
+          <Doodle name="star" style={{ color: "var(--butter)" }} />
+        </Piece>
+        <Piece box={box} className="hero__doodle" style={{ top: "34%", right: "-1%", width: "clamp(52px, 4vw, 76px)" }} z={5}>
+          <Doodle name="cat" className="doodle--float" />
+        </Piece>
+        <Piece box={box} className="hero__doodle" style={{ top: "30%", left: "0%", width: "clamp(26px, 2vw, 40px)" }} z={5}>
+          <Doodle name="sparkle" style={{ color: "var(--cornflower)" }} />
+        </Piece>
       </motion.div>
     </section>
   );

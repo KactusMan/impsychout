@@ -1,4 +1,5 @@
 import { approaches, faqs, focusAreas, site } from "./content";
+import { services } from "./services";
 
 // Structured data (schema.org JSON-LD) so search engines and AI agents can read who Laraib is,
 // what the practice offers and how to get in touch, without parsing the design.
@@ -50,9 +51,9 @@ export const jsonLd = {
       hasOfferCatalog: {
         "@type": "OfferCatalog",
         name: "Therapy services",
-        itemListElement: focusAreas.map((f) => ({
+        itemListElement: services.map((sv) => ({
           "@type": "Offer",
-          itemOffered: { "@type": "Service", name: f.title, description: f.body },
+          itemOffered: { "@type": "Service", name: sv.h1, description: sv.answer, url: `${site.url}/services/${sv.slug}` },
         })),
       },
       potentialAction: {

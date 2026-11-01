@@ -6,6 +6,10 @@ import { approaches } from "@/lib/content";
 import { SectionHead } from "./Sections";
 import { useSound } from "./SoundProvider";
 
+// A literal file folder: coloured index dividers stick out of the top, the chosen sheet is
+// pulled up out of the folder (with a paper sound), and the front cover keeps the rest tucked in.
+const ease = [0.22, 1, 0.36, 1] as const;
+
 export function Approach() {
   const [current, setCurrent] = useState(0);
   const tabs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -42,8 +46,14 @@ export function Approach() {
           sub="Therapeutic science explained in clear, friendly language. No cold clinical jargon or distant acronyms."
         />
 
-        <div className="folders">
-          <div className="folders__tabs" role="tablist" aria-label="Therapy approaches">
+        <div className="file">
+          {/* back of the folder, with its own tab */}
+          <div className="file__back" aria-hidden="true">
+            <span className="file__back-tab hand">L. F. Ahmed · approaches</span>
+          </div>
+
+          {/* index dividers */}
+          <div className="file__tabs" role="tablist" aria-label="Therapy approaches">
             {approaches.map((ap, i) => (
               <button
                 key={ap.id}
@@ -55,6 +65,7 @@ export function Approach() {
                 aria-controls={`panel-${ap.id}`}
                 aria-selected={i === current}
                 tabIndex={i === current ? 0 : -1}
+                className="file__tab"
                 style={{ ["--c" as string]: ap.color }}
                 onClick={() => select(i)}
                 onKeyDown={(e) => onKey(e, i)}
@@ -64,34 +75,39 @@ export function Approach() {
             ))}
           </div>
 
-          <div className="folders__body" style={{ ["--c" as string]: a.color }}>
+          {/* paper edges peeking out, so it reads as a full folder */}
+          <div className="file__stack" aria-hidden="true">
+            <span />
+            <span />
+          </div>
+
+          <div className="file__slot">
             <AnimatePresence mode="wait" initial={false}>
-              <motion.div
+              <motion.article
                 key={a.id}
-                className="folder"
+                className="file__sheet"
                 role="tabpanel"
                 id={`panel-${a.id}`}
                 aria-labelledby={`tab-${a.id}`}
-                initial={{ opacity: 0, x: 16 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -16 }}
-                transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                style={{ ["--c" as string]: a.color }}
+                initial={{ y: "62%", rotate: -1.5 }}
+                animate={{ y: "0%", rotate: -0.6 }}
+                exit={{ y: "62%", rotate: 1 }}
+                transition={{ duration: 0.5, ease }}
               >
-                <div>
-                  <p className="folder__kicker">{a.name}</p>
-                  <h3>{a.title}</h3>
-                  <p>{a.body}</p>
-                </div>
-                <motion.div
-                  className="folder__note hand"
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-                >
-                  {a.note}
-                </motion.div>
-              </motion.div>
+                <span className="file__clip" aria-hidden="true" />
+                <p className="file__kicker">{a.name}</p>
+                <h3>{a.title}</h3>
+                <p className="file__body">{a.body}</p>
+                <p className="file__note hand">{a.note}</p>
+              </motion.article>
             </AnimatePresence>
+          </div>
+
+          {/* front cover */}
+          <div className="file__front" aria-hidden="true">
+            <span className="file__label hand">Frameworks, uncomplicated</span>
+            <span className="file__label-sub">pull a divider to read</span>
           </div>
         </div>
       </div>
