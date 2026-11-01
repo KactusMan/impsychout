@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { steps } from "@/lib/content";
+import type { Copy } from "@/lib/copy";
 import { Doodle } from "./Doodles";
 import { SectionHead } from "./Sections";
 import { useSound } from "./SoundProvider";
@@ -11,7 +11,8 @@ const TONES = ["paper", "sky", "pink", "butter"] as const;
 
 // A carousel built on native scroll-snap: swipe on touch, drag with a mouse,
 // arrow buttons, keyboard arrows, and dots that follow along.
-export function Process() {
+export function Process({ c }: { c: Copy["process"] }) {
+  const steps = c.steps;
   const track = useRef<HTMLOListElement>(null);
   const [index, setIndex] = useState(0);
   const { play } = useSound();
@@ -99,9 +100,9 @@ export function Process() {
       <div className="container">
         <SectionHead
           id="process-title"
-          eyebrow="What to expect"
-          title="Starting therapy shouldn't feel scary."
-          sub="Here's the gentle, four-step path from first hello to steady growth."
+          eyebrow={c.eyebrow}
+          title={c.title}
+          sub={c.sub}
         />
       </div>
 
@@ -137,11 +138,11 @@ export function Process() {
               <p>{s.body}</p>
               {i < steps.length - 1 ? (
                 <span className="step-card__next hand" aria-hidden="true">
-                  then
+                  {c.between}
                 </span>
               ) : (
                 <a className="step-card__cta" href="#book" data-sfx-hover="tick">
-                  Start with step one
+                  {c.lastLink}
                 </a>
               )}
             </li>

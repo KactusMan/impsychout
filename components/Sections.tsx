@@ -1,13 +1,16 @@
 import Image from "next/image";
 import Link from "next/link";
-import { credentials, faqs, feed, nav, site, testimonials, type Tone } from "@/lib/content";
-import { services } from "@/lib/services";
+import { nav } from "@/lib/content";
+import type { Copy } from "@/lib/copy";
+import type { Tone } from "@/lib/content";
 import { CareIcon } from "./CareIcon";
+import { ConsentLink } from "./Consent";
 import { Doodle } from "./Doodles";
 import { Envelope } from "./Envelope";
 import { GumButton } from "./GumButton";
 import { PlayRoom } from "./PlayRoom";
 import { Reveal } from "./Reveal";
+import { Rich } from "./Rich";
 
 export function SectionHead({
   eyebrow,
@@ -33,44 +36,34 @@ export function SectionHead({
   );
 }
 
-export function About() {
+export function About({ c }: { c: Copy["about"] }) {
   return (
     <section className="about section--paper" id="about" aria-labelledby="about-title">
       <div className="container about__grid">
         <div className="about__copy">
           <Reveal>
-            <p className="eyebrow">About my practice</p>
+            <p className="eyebrow">{c.eyebrow}</p>
             <h2 className="display h2" id="about-title">
-              Understanding, not diagnosing.
+              {c.title}
             </h2>
           </Reveal>
           <Reveal delay={0.05}>
             <p className="about__lede">
-              Hi, I&apos;m Laraib Fatima Ahmed. In a world that often demands non-stop productivity and quiet
-              suffering, finding a genuinely non-judgmental space can feel transformative.
+              <Rich text={c.lede} />
             </p>
-            <p>
-              Healing begins when we remove the shame and confusion around mental health. My clinical work blends
-              rigorous science, including Cognitive Behavioural Therapy (CBT) and Dialectical Behaviour Therapy (DBT),
-              with genuine human warmth and cultural understanding. I&apos;ve worked across clinical settings in the UK
-              and in international online therapy.
-            </p>
-            <p>
-              You&apos;ll never be treated like a list of symptoms. Together, we untangle persistent thought loops,
-              build a sense of safety in your body, and shape a life that feels like your own.
-            </p>
+            {c.paragraphs.map((t, i) => (
+              <p key={i}>
+                <Rich text={t} />
+              </p>
+            ))}
           </Reveal>
           <Reveal delay={0.1}>
             <ul className="about__chips">
-              <li>
-                <b>MSc</b> Clinical Psychology, with Merit
-              </li>
-              <li>
-                <b>BPS</b> Graduate Member (MBPsS)
-              </li>
-              <li>
-                <b>UK</b> &amp; international clinical experience
-              </li>
+              {c.chips.map((ch) => (
+                <li key={ch.label + ch.text}>
+                  <b>{ch.label}</b> {ch.text}
+                </li>
+              ))}
             </ul>
           </Reveal>
         </div>
@@ -78,21 +71,18 @@ export function About() {
         <Reveal className="about__room" delay={0.08}>
           <div className="about__pinned note">
             <span className="tape tape--pink" style={{ ["--r" as string]: "-4deg", top: -12, left: 30 }} />
-            <p className="hand">beyond the clinic</p>
-            <p>
-              Reader of existential philosophy, reflective essayist, musician, cosy gamer, and proud cat mom to two
-              delightfully chaotic felines.
-            </p>
+            <p className="hand">{c.noteTitle}</p>
+            <p>{c.noteBody}</p>
           </div>
-          <PlayRoom />
+          <PlayRoom hint={c.playHint} />
           <dl className="about__cats">
             <div>
               <dt className="hand">Pumpkin</dt>
-              <dd>Chases everything. Zero chill. Will pounce on your cursor.</dd>
+              <dd>{c.pumpkin}</dd>
             </div>
             <div>
               <dt className="hand">Daisy</dt>
-              <dd>Supervises. Gets there eventually, then has a little lie down.</dd>
+              <dd>{c.daisy}</dd>
             </div>
           </dl>
         </Reveal>
@@ -103,64 +93,59 @@ export function About() {
 
 const TONES: Tone[] = ["sky", "blue", "pink", "paper", "butter", "sky", "paper", "blue"];
 
-export function Focus() {
+export function Focus({ c, services }: { c: Copy["care"]; services: Copy["services"] }) {
   return (
     <section className="focus section--dots" id="focus" aria-labelledby="focus-title">
       <div className="container">
         <SectionHead
           id="focus-title"
-          eyebrow="Specialised care"
+          eyebrow={c.eyebrow}
           title={
             <>
-              Pull up a chair, here&apos;s what we can work on{" "}
-              <Doodle name="sparkle" className="ico ico--lg" style={{ color: "var(--cornflower)" }} />
+              {c.title} <Doodle name="sparkle" className="ico ico--lg" style={{ color: "var(--cornflower)" }} />
             </>
           }
-          sub="Tailored, collaborative care designed around your neurotype, life stage and lived experience."
+          sub={c.sub}
         />
         <ul className="cards">
           {services.map((s, i) => (
             <Reveal as="li" key={s.slug} delay={(i % 4) * 0.06} rotate={[-1.5, 1, -0.8, 1.6][i % 4]}>
-              <Link href={`/services/${s.slug}`} className={`card card--${TONES[i]}`} data-sfx-hover="thock">
+              <Link href={`/services/${s.slug}`} className={`card card--${TONES[i % TONES.length]}`} data-sfx-hover="thock">
                 <span className="card__ico">
                   <CareIcon name={s.icon} />
                 </span>
                 <h3>{s.name}</h3>
                 <p>{s.short}</p>
                 <span className="card__more">
-                  Read more <span aria-hidden="true">→</span>
+                  {c.readMore} <span aria-hidden="true">→</span>
                 </span>
               </Link>
             </Reveal>
           ))}
         </ul>
         <Reveal className="focus__cta">
-          <p className="hand">not sure where you fit? that&apos;s okay, that&apos;s what the free consultation is for</p>
+          <p className="hand">{c.nudge}</p>
           <Doodle name="arrow" className="focus__arrow" />
-          <GumButton href="#book" size="lg">Request a free consultation</GumButton>
+          <GumButton href="#book" size="lg">{c.button}</GumButton>
         </Reveal>
       </div>
     </section>
   );
 }
 
-export function Credentials() {
+export function Credentials({ c }: { c: Copy["credentials"] }) {
   return (
     <section className="creds section--lined" id="credentials" aria-labelledby="creds-title">
       <div className="container">
-        <SectionHead
-          id="creds-title"
-          eyebrow="Clinical credentials & training"
-          title="Grounded in British & international standards."
-        />
+        <SectionHead id="creds-title" eyebrow={c.eyebrow} title={c.title} />
         <div className="creds__grid">
-          {credentials.map((c, i) => (
-            <Reveal as="article" className="paper-sheet" key={c.heading} delay={i * 0.1}>
+          {c.groups.map((g, i) => (
+            <Reveal as="article" className="paper-sheet" key={g.heading + i} delay={i * 0.1}>
               <h3>
-                <Doodle name={c.icon} className="ico" /> {c.heading}
+                <Doodle name={g.icon} className="ico" /> {g.heading}
               </h3>
               <ul>
-                {c.items.map((it) => (
+                {g.items.map((it) => (
                   <li key={it.title}>
                     <b>{it.title}</b>
                     <span>{it.detail}</span>
@@ -175,26 +160,21 @@ export function Credentials() {
   );
 }
 
-export function KindWords() {
+export function KindWords({ c }: { c: Copy["kindWords"] }) {
   return (
     <section className="kind-words section--gingham" aria-labelledby="kind-title">
       <div className="container">
-        <SectionHead
-          id="kind-title"
-          eyebrow="Kind words"
-          title="Notes from people who've sat in the chair."
-          sub="Names are always kept private, because your story is yours."
-        />
+        <SectionHead id="kind-title" eyebrow={c.eyebrow} title={c.title} sub={c.sub} />
         <div className="kind-words__row">
-          {testimonials.map((t, i) => (
-            <Envelope key={t.who} quote={t.quote} who={t.who} index={i} />
+          {c.letters.map((t, i) => (
+            <Envelope key={t.who + i} quote={t.quote} who={t.who} index={i} greeting={c.greeting} />
           ))}
         </div>
         <Reveal className="kind-words__foot">
           <p>
-            Every first conversation starts the same way: with you being heard.{" "}
+            {c.footer}{" "}
             <a href="#book" className="text-link" data-sfx-hover="tick">
-              Request a free consultation
+              {c.footerLink}
             </a>
           </p>
         </Reveal>
@@ -203,23 +183,18 @@ export function KindWords() {
   );
 }
 
-export function Feed() {
+export function Feed({ c, instagram }: { c: Copy["feed"]; instagram: string }) {
   return (
     <section className="feed section--grid" aria-labelledby="feed-title">
       <div className="container">
-        <SectionHead
-          id="feed-title"
-          eyebrow="@impsychout"
-          title="Fresh from the feed"
-          sub="Gentle reminders and psychology, minus the jargon, every week on Instagram."
-        />
+        <SectionHead id="feed-title" eyebrow={c.eyebrow} title={c.title} sub={c.sub} />
         <ul className="feed__row">
-          {feed.map((p, i) => (
-            <Reveal as="li" key={p.src} rotate={[-3, 2, -1, 3][i]} delay={i * 0.08} y={40}>
-              <a className="polaroid" href={site.instagram} target="_blank" rel="noopener noreferrer" data-sfx-hover="tick">
+          {c.posts.map((p, i) => (
+            <Reveal as="li" key={p.src} rotate={[-3, 2, -1, 3][i % 4]} delay={i * 0.08} y={40}>
+              <a className="polaroid" href={instagram} target="_blank" rel="noopener noreferrer" data-sfx-hover="tick">
                 <span
-                  className={`tape ${["tape--pink", "tape--blue", "tape--pink", "tape--blue"][i]}`}
-                  style={{ ["--r" as string]: `${[-6, 5, -3, 4][i]}deg`, top: -12, left: "32%" }}
+                  className={`tape ${["tape--pink", "tape--blue", "tape--pink", "tape--blue"][i % 4]}`}
+                  style={{ ["--r" as string]: `${[-6, 5, -3, 4][i % 4]}deg`, top: -12, left: "32%" }}
                 />
                 <Image src={p.src} alt={p.alt} width={512} height={640} sizes="(max-width: 640px) 45vw, (max-width: 1020px) 45vw, 22vw" />
               </a>
@@ -227,8 +202,8 @@ export function Feed() {
           ))}
         </ul>
         <div className="center">
-          <GumButton href={site.instagram} variant="paper" target="_blank" rel="noopener noreferrer">
-            Follow on Instagram
+          <GumButton href={instagram} variant="paper" target="_blank" rel="noopener noreferrer">
+            {c.button}
           </GumButton>
         </div>
       </div>
@@ -236,20 +211,22 @@ export function Feed() {
   );
 }
 
-export function Faq({ items = faqs, title = "Before you reach out" }: { items?: { q: string; a: string }[]; title?: string }) {
+export function Faq({ items, title, eyebrow = "Good questions" }: { items: { q: string; a: string }[]; title: string; eyebrow?: string }) {
   return (
     <section className="faq section--wash" id="faq" aria-labelledby="faq-title">
       <div className="container container--narrow">
-        <SectionHead id="faq-title" eyebrow="Good questions" title={title} />
+        <SectionHead id="faq-title" eyebrow={eyebrow} title={title} />
         <div className="faq__list">
           {items.map((f, i) => (
-            <Reveal key={f.q} delay={i * 0.05}>
+            <Reveal key={f.q + i} delay={i * 0.05}>
               <details className="faq__item" name="faq">
                 <summary data-sfx-press="drop">
                   <span>{f.q}</span>
                   <span className="faq__plus" aria-hidden="true" />
                 </summary>
-                <p>{f.a}</p>
+                <p>
+                  <Rich text={f.a} />
+                </p>
               </details>
             </Reveal>
           ))}
@@ -259,7 +236,7 @@ export function Faq({ items = faqs, title = "Before you reach out" }: { items?: 
   );
 }
 
-export function Footer() {
+export function Footer({ c, instagram }: { c: Copy["footer"]; instagram: string }) {
   return (
     <footer className="footer">
       <div className="container footer__grid">
@@ -270,10 +247,7 @@ export function Footer() {
               <span className="brand__tag">your safe space to talk</span>
             </span>
           </a>
-          <p className="footer__blurb">
-            Online therapy with clinical psychologist Laraib Fatima Ahmed. Uncomplicating psychology, one gentle
-            conversation at a time.
-          </p>
+          <p className="footer__blurb">{c.blurb}</p>
         </div>
         <nav className="footer__col" aria-label="Footer">
           <p className="footer__h">Explore</p>
@@ -288,20 +262,23 @@ export function Footer() {
           <a href="/#book" data-sfx-hover="tick">
             Request a consultation
           </a>
-          <a href={site.instagram} target="_blank" rel="noopener noreferrer" data-sfx-hover="tick">
+          <a href={instagram} target="_blank" rel="noopener noreferrer" data-sfx-hover="tick">
             Instagram
           </a>
         </div>
       </div>
       <div className="container footer__base">
         <p>
-          <span className="hand footer__sign">with care, Laraib</span> © {new Date().getFullYear()} ImPsychOut. Not an
-          emergency service.
+          <span className="hand footer__sign">{c.sign}</span> © {new Date().getFullYear()} ImPsychOut. {c.legal}
         </p>
-        <span className="footer__cats" aria-hidden="true">
-          <img src="/art/daisy-loaf.webp" alt="" width={520} height={273} loading="lazy" title="Daisy" />
-          <img src="/art/pumpkin-sit.webp" alt="" width={356} height={520} loading="lazy" title="Pumpkin" />
-        </span>
+        <nav className="footer__legal" aria-label="Legal">
+          <Link href="/privacy">Privacy</Link>
+          <Link href="/cookies">Cookies</Link>
+          <Link href="/terms">Terms</Link>
+          <Link href="/accessibility">Accessibility</Link>
+          <ConsentLink>Cookie settings</ConsentLink>
+          <ConsentLink>Your privacy choices</ConsentLink>
+        </nav>
       </div>
     </footer>
   );

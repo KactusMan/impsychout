@@ -1,10 +1,8 @@
 import type { Metadata, Viewport } from "next";
-import { Chewy, Fraunces, Gochi_Hand, Onest } from "next/font/google";
+import { Atkinson_Hyperlegible, Chewy, Fraunces, Gochi_Hand, Onest } from "next/font/google";
+import Script from "next/script";
 import { site } from "@/lib/content";
-import { DoodleSprite } from "@/components/Doodles";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Sections";
-import { SoundProvider } from "@/components/SoundProvider";
+import { consentDefaults } from "@/lib/consent-defaults";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -17,6 +15,8 @@ const fraunces = Fraunces({
 const onest = Onest({ subsets: ["latin"], variable: "--font-onest", display: "swap" });
 const chewy = Chewy({ subsets: ["latin"], weight: "400", variable: "--font-chewy", display: "swap" });
 const gochi = Gochi_Hand({ subsets: ["latin"], weight: "400", variable: "--font-gochi", display: "swap" });
+// Highly legible face for the "Readable font" accessibility option (designed for low-vision readers).
+const atkinson = Atkinson_Hyperlegible({ subsets: ["latin"], weight: ["400", "700"], variable: "--font-readable", display: "swap" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
@@ -73,17 +73,12 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en-GB" className={`${fraunces.variable} ${onest.variable} ${chewy.variable} ${gochi.variable}`}>
+    <html lang="en-GB" className={`${fraunces.variable} ${onest.variable} ${chewy.variable} ${gochi.variable} ${atkinson.variable}`}>
       <body>
-        <SoundProvider>
-          <DoodleSprite />
-          <a className="skip" href="#main">
-            Skip to content
-          </a>
-          <Header />
-          <main id="main">{children}</main>
-          <Footer />
-        </SoundProvider>
+        <Script id="consent-defaults" strategy="beforeInteractive">
+          {consentDefaults}
+        </Script>
+        {children}
       </body>
     </html>
   );

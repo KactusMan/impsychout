@@ -4,7 +4,7 @@ import { CareIcon } from "@/components/CareIcon";
 import { GumButton } from "@/components/GumButton";
 import { Reveal } from "@/components/Reveal";
 import { site } from "@/lib/content";
-import { services } from "@/lib/services";
+import { getCopy } from "@/lib/cms";
 
 export const metadata: Metadata = {
   title: "Online Therapy Services",
@@ -13,7 +13,8 @@ export const metadata: Metadata = {
   alternates: { canonical: "/services" },
 };
 
-export default function ServicesIndex() {
+export default async function ServicesIndex() {
+  const { services } = await getCopy();
   const ld = {
     "@context": "https://schema.org",
     "@type": "ItemList",

@@ -5,11 +5,11 @@ import { site } from "@/lib/content";
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
-      { userAgent: "*", allow: "/", disallow: "/api/" },
+      { userAgent: "*", allow: "/", disallow: ["/api/", "/safehaven"] },
       {
         userAgent: ["GPTBot", "OAI-SearchBot", "ChatGPT-User", "ClaudeBot", "Claude-User", "Claude-SearchBot", "PerplexityBot", "Google-Extended", "Applebot-Extended"],
         allow: "/",
-        disallow: "/api/",
+        disallow: ["/api/", "/safehaven"],
       },
     ],
     sitemap: `${site.url}/sitemap.xml`,

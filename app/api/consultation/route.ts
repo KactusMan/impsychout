@@ -28,7 +28,7 @@ export async function POST(req: Request) {
     focus: clean(body.focus, 80),
     message: clean(body.message),
   };
-  if (!fields.name || !/^\S+@\S+\.\S+$/.test(fields.email) || body.consent !== "on") {
+  if (!fields.name || !/^\S+@\S+\.\S+$/.test(fields.email) || body.consent !== "on" || body.privacy !== "on") {
     return NextResponse.json({ error: "invalid" }, { status: 422 });
   }
 

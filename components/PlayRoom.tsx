@@ -20,7 +20,7 @@ type Cat = {
 
 const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
 
-export function PlayRoom() {
+export function PlayRoom({ hint }: { hint: string }) {
   const room = useRef<HTMLDivElement>(null);
   const dot = useRef<HTMLDivElement>(null);
   const pumpkinEl = useRef<HTMLDivElement>(null);
@@ -232,7 +232,7 @@ export function PlayRoom() {
       </div>
 
       <p className="playroom__hint hand" aria-hidden="true">
-        move your cursor in here, Pumpkin is ready
+        {hint}
       </p>
     </div>
   );

@@ -6,19 +6,13 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useRef } from "react";
 import { GumButton } from "./GumButton";
 import { useSound } from "./SoundProvider";
+import type { Copy } from "@/lib/copy";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 // "Untangling it, together": while the section holds still, a tangled thread of thought slowly
 // smooths into a calm line as you scroll. Each worried thought pinned along it flips over to a
 // kinder reframe as the thread reaches it, with a soft marimba note that rises each time.
-
-const THOUGHTS = [
-  { worry: "What if I mess it all up?", reframe: "What if it goes okay? And if it doesn't, I can handle that too." },
-  { worry: "I should be over this by now.", reframe: "Healing doesn't run on a schedule." },
-  { worry: "I'm too much for people.", reframe: "The right people make room for me." },
-  { worry: "Nobody would understand.", reframe: "Being understood starts with being heard." },
-];
 
 // The thread lives in a 1000 x 300 box. Same number of points in both states, so we can blend.
 const N = 72;
@@ -65,7 +59,7 @@ const blend = (u: number) => {
   return TANGLED.map((p, i) => ({ x: p.x + (CALM[i].x - p.x) * e, y: p.y + (CALM[i].y - p.y) * e }));
 };
 
-export function Untangle() {
+export function Untangle({ c }: { c: Copy["untangle"] }) {
   const root = useRef<HTMLElement>(null);
   const thread = useRef<SVGPathElement>(null);
   const shadow = useRef<SVGPathElement>(null);
@@ -127,13 +121,12 @@ export function Untangle() {
     <section className="untangle section--wash" id="story" ref={root} aria-labelledby="untangle-title">
       <div className="untangle__stage container">
         <div className="untangle__copy">
-          <p className="eyebrow">Every mind has a story</p>
+          <p className="eyebrow">{c.eyebrow}</p>
           <h2 className="display h2" id="untangle-title">
-            Untangling it, <em>together</em>.
+            {c.title} <em>{c.titleEmphasis}</em>.
           </h2>
           <p>
-            Thoughts loop. They knot up around the things that matter most to us. Therapy is a slow, gentle
-            unknotting, until there&apos;s room to breathe again. Scroll and watch.
+            {c.body}
           </p>
         </div>
 
@@ -150,15 +143,15 @@ export function Untangle() {
           </svg>
 
           <ol className="untangle__thoughts">
-            {THOUGHTS.map((t, i) => (
+            {c.thoughts.map((t, i) => (
               <li key={t.worry} className={`thought thought--${i}`}>
                 <div className="thought__card">
                   <p className="thought__face thought__face--worry">
-                    <span className="thought__label">the loop</span>
+                    <span className="thought__label">{c.loopLabel}</span>
                     <span className="hand">{t.worry}</span>
                   </p>
                   <p className="thought__face thought__face--reframe">
-                    <span className="thought__label">a kinder thought</span>
+                    <span className="thought__label">{c.reframeLabel}</span>
                     <span className="hand">{t.reframe}</span>
                   </p>
                 </div>
@@ -171,7 +164,7 @@ export function Untangle() {
           <div className="untangle__meter" aria-hidden="true">
             <span />
           </div>
-          <GumButton href="#book" variant="paper">Let&apos;s untangle it together</GumButton>
+          <GumButton href="#book" variant="paper">{c.button}</GumButton>
         </div>
       </div>
     </section>

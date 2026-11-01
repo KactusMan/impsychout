@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { useRef, useState } from "react";
-import { approaches } from "@/lib/content";
+import type { Copy } from "@/lib/copy";
 import { SectionHead } from "./Sections";
 import { useSound } from "./SoundProvider";
 
@@ -10,7 +10,8 @@ import { useSound } from "./SoundProvider";
 // pulled up out of the folder (with a paper sound), and the front cover keeps the rest tucked in.
 const ease = [0.22, 1, 0.36, 1] as const;
 
-export function Approach() {
+export function Approach({ c }: { c: Copy["approach"] }) {
+  const approaches = c.items;
   const [current, setCurrent] = useState(0);
   const tabs = useRef<(HTMLButtonElement | null)[]>([]);
   const { play } = useSound();
@@ -37,19 +38,19 @@ export function Approach() {
       <div className="container">
         <SectionHead
           id="approach-title"
-          eyebrow="How I work"
+          eyebrow={c.eyebrow}
           title={
             <>
-              Frameworks, <em>uncomplicated</em>
+              {c.title} <em>{c.titleEmphasis}</em>
             </>
           }
-          sub="Therapeutic science explained in clear, friendly language. No cold clinical jargon or distant acronyms."
+          sub={c.sub}
         />
 
         <div className="file">
           {/* back of the folder, with its own tab */}
           <div className="file__back" aria-hidden="true">
-            <span className="file__back-tab hand">L. F. Ahmed · approaches</span>
+            <span className="file__back-tab hand">{c.folderTab}</span>
           </div>
 
           {/* index dividers */}
@@ -106,8 +107,8 @@ export function Approach() {
 
           {/* front cover */}
           <div className="file__front" aria-hidden="true">
-            <span className="file__label hand">Frameworks, uncomplicated</span>
-            <span className="file__label-sub">pull a divider to read</span>
+            <span className="file__label hand">{c.folderLabel}</span>
+            <span className="file__label-sub">{c.folderHint}</span>
           </div>
         </div>
       </div>

@@ -5,13 +5,13 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { nav } from "@/lib/content";
-import { services } from "@/lib/services";
+import type { DoodleName } from "@/lib/content";
 import { CareIcon } from "./CareIcon";
 import { GumButton } from "./GumButton";
 import { useSound } from "./SoundProvider";
 import { Doodle } from "./Doodles";
 
-export function Header() {
+export function Header({ services }: { services: { slug: string; name: string; icon: DoodleName }[] }) {
   const header = useRef<HTMLElement>(null);
   const [hovered, setHovered] = useState<string | null>(null);
   const [active, setActive] = useState<string | null>(null);

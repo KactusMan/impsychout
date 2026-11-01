@@ -1,9 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { motion } from "framer-motion";
-import { useRef, useState, type CSSProperties, type ReactNode, type RefObject } from "react";
+import { animate, motion, useMotionValue } from "framer-motion";
+import { createContext, useContext, useEffect, useRef, useState, type CSSProperties, type ReactNode, type RefObject } from "react";
 import { useSound } from "./SoundProvider";
+import type { Copy } from "@/lib/copy";
 import { Doodle } from "./Doodles";
 import { GumButton } from "./GumButton";
 
@@ -18,6 +19,10 @@ const fade = (delay: number) => ({
   animate: { opacity: 1 },
   transition: { delay, duration: 0.9, ease },
 });
+
+// Shared between the collage and its pieces: a counter that sends every piece home when it
+// changes, and a callback so the collage knows something has been moved.
+const Tidy = createContext<{ round: number; moved: () => void }>({ round: 0, moved: () => {} });
 
 // A collage piece you can pick up and move around, but only inside the collage box.
 function Piece({
@@ -36,11 +41,25 @@ function Piece({
   children: ReactNode;
 }) {
   const { play } = useSound();
+  const { round, moved } = useContext(Tidy);
   const [lift, setLift] = useState(z);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  useEffect(() => {
+    if (round === 0) return;
+    const opts = { type: "spring" as const, stiffness: 160, damping: 22 };
+    const a = animate(x, 0, opts);
+    const b = animate(y, 0, opts);
+    setLift(z);
+    return () => {
+      a.stop();
+      b.stop();
+    };
+  }, [round, x, y, z]);
   return (
     <motion.div
       className={`piece ${className}`}
-      style={{ ...style, rotate: rest, zIndex: lift }}
+      style={{ ...style, x, y, rotate: rest, zIndex: lift }}
       drag
       dragConstraints={box}
       dragElastic={0.08}
@@ -51,6 +70,7 @@ function Piece({
       onDragStart={() => {
         setLift(20); // whatever you pick up comes to the top of the pile
         play("pick");
+        moved();
       }}
       onDragEnd={() => {
         setLift(z + 10);
@@ -62,8 +82,16 @@ function Piece({
   );
 }
 
-export function Hero() {
+export function Hero({ c }: { c: Copy["hero"] }) {
   const box = useRef<HTMLDivElement>(null);
+  const [round, setRound] = useState(0);
+  const [messy, setMessy] = useState(false);
+  const { play } = useSound();
+  const tidyUp = () => {
+    setRound((r) => r + 1);
+    setMessy(false);
+    play("place");
+  };
   return (
     <section className="hero" id="top" aria-labelledby="hero-title">
       <div className="hero__blob" aria-hidden="true" />
@@ -71,17 +99,17 @@ export function Hero() {
 
       <div className="hero__copy">
         <motion.p className="hand hero__hello" {...rise(0)}>
-          hi, welcome to ImPsychOut <Doodle name="sparkle" className="ico" />
+          {c.hello} <Doodle name="sparkle" className="ico" />
         </motion.p>
 
         <h1 className="display hero__title" id="hero-title">
           <motion.span className="hero__line" {...rise(0.08)}>
-            Stop navigating it alone.
+            {c.line1}
           </motion.span>
           <motion.span className="hero__line hero__line--soft" {...rise(0.18)}>
-            Let&apos;s make sense of it{" "}
+            {c.line2}{" "}
             <em className="marked">
-              together.
+              {c.underlined}
               <svg className="marked__line" aria-hidden="true" viewBox="0 0 200 16" preserveAspectRatio="none">
                 <motion.path
                   d="M4 11c40-6 90-8 140-6 18 1 34 2 52 4"
@@ -99,33 +127,40 @@ export function Hero() {
         </h1>
 
         <motion.p className="lead" {...rise(0.3)}>
-          Online therapy for teens, young adults and adults with clinical psychologist Laraib Fatima Ahmed.
-          Psychology, uncomplicated: compassionate, evidence-based care for real minds living in a complex world.
+          {c.lead}
         </motion.p>
 
         <motion.div className="hero__ctas" {...rise(0.4)}>
-          <GumButton href="#book" size="lg">Request a free consultation</GumButton>
-          <GumButton href="#focus" size="lg" variant="paper">See how I can help</GumButton>
+          <GumButton href="#book" size="lg">{c.primaryButton}</GumButton>
+          <GumButton href="#focus" size="lg" variant="paper">{c.secondaryButton}</GumButton>
         </motion.div>
 
         <motion.ul className="hero__trust" {...rise(0.5)}>
-          {[
-            { icon: "heart" as const, text: "Confidential online sessions" },
-            { icon: "star" as const, text: "Evidence-based: CBT, DBT, ACT" },
-            { icon: "flower" as const, text: "BPS Graduate Member" },
-          ].map((t) => (
-            <li key={t.text}>
-              <Doodle name={t.icon} />
-              {t.text}
+          {c.trust.map((text, i) => (
+            <li key={text}>
+              <Doodle name={(["heart", "star", "flower"] as const)[i % 3]} />
+              {text}
             </li>
           ))}
         </motion.ul>
       </div>
 
+      <Tidy.Provider value={{ round, moved: () => setMessy(true) }}>
       <motion.div className="hero__collage" ref={box} {...fade(0.2)}>
-        <p className="hero__drag-hint hand" aria-hidden="true">
-          psst, you can move things around
-        </p>
+        <div className="hero__tidy">
+          {messy ? (
+            <button type="button" className="hero__reset" onClick={tidyUp}>
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4.5h4.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              {c.tidyButton}
+            </button>
+          ) : (
+            <p className="hero__drag-hint hand" aria-hidden="true">
+              {c.dragHint}
+            </p>
+          )}
+        </div>
         <Piece box={box} className="hero__polaroid" rest={2.5} z={3}>
           <figure className="polaroid">
             <span className="tape tape--pink" style={{ ["--r" as string]: "-6deg", top: -16, left: "38%" }} />
@@ -138,25 +173,25 @@ export function Hero() {
               draggable={false}
               sizes="(max-width: 860px) 80vw, 34vw"
             />
-            <figcaption className="hand">hi, I&apos;m Laraib ♡</figcaption>
+            <figcaption className="hand">{c.photoCaption}</figcaption>
           </figure>
         </Piece>
 
         <Piece box={box} className="hero__note" rest={-4} z={4}>
           <div className="note">
             <span className="tape tape--blue" style={{ ["--r" as string]: "5deg", top: -12, left: 22 }} />
-            <p className="hand">a place to uncomplicate your thoughts &amp; heal at your own pace</p>
+            <p className="hand">{c.note}</p>
           </div>
         </Piece>
 
         <Piece box={box} className="hero__sticker" style={{ top: "6%", right: "4%" }} rest={5} z={6}>
-          <span className="sticker sticker--blue">Trauma-informed</span>
+          <span className="sticker sticker--blue">{c.stickers[0]}</span>
         </Piece>
         <Piece box={box} className="hero__sticker" style={{ top: "58%", left: "2%" }} rest={-6} z={6}>
-          <span className="sticker sticker--pink">Safe &amp; seen</span>
+          <span className="sticker sticker--pink">{c.stickers[1]}</span>
         </Piece>
         <Piece box={box} className="hero__sticker" style={{ bottom: "8%", right: "8%" }} rest={3} z={6}>
-          <span className="sticker sticker--butter">Emotion regulation</span>
+          <span className="sticker sticker--butter">{c.stickers[2]}</span>
         </Piece>
 
         <Piece box={box} className="hero__doodle" style={{ top: "4%", left: "14%", width: "clamp(36px, 3vw, 54px)" }} z={5}>
@@ -169,6 +204,7 @@ export function Hero() {
           <Doodle name="sparkle" style={{ color: "var(--cornflower)" }} />
         </Piece>
       </motion.div>
+      </Tidy.Provider>
     </section>
   );
 }

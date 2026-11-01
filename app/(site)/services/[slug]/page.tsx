@@ -6,8 +6,9 @@ import { CareIcon } from "@/components/CareIcon";
 import { GumButton } from "@/components/GumButton";
 import { Reveal } from "@/components/Reveal";
 import { Faq } from "@/components/Sections";
-import { approaches, site } from "@/lib/content";
-import { serviceBySlug, services } from "@/lib/services";
+import { site } from "@/lib/content";
+import { getCopy } from "@/lib/cms";
+import { services } from "@/lib/services";
 
 const REVIEWED = "2026-11-01"; // update when the clinical content is reviewed again
 
@@ -17,7 +18,7 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const s = serviceBySlug(slug);
+  const s = (await getCopy()).services.find((x) => x.slug === slug);
   if (!s) return {};
   const url = `/services/${s.slug}`;
   return {
@@ -31,6 +32,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function ServicePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  const copy = await getCopy();
+  const serviceBySlug = (x: string) => copy.services.find((sv) => sv.slug === x);
+  const approaches = copy.approach.items;
   const s = serviceBySlug(slug);
   if (!s) notFound();
 
@@ -207,7 +211,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
         </ul>
       </section>
 
-      <Booking />
+      <Booking c={copy.booking} instagram={copy.site.instagram} />
     </>
   );
 }

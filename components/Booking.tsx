@@ -2,14 +2,16 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
-import { site } from "@/lib/content";
+import type { Copy } from "@/lib/copy";
+import { services } from "@/lib/services";
+import { Rich } from "./Rich";
 import { Doodle } from "./Doodles";
 import { GumButton } from "./GumButton";
 import { Reveal } from "./Reveal";
 
 type Status = { kind: "idle" | "sending" | "ok" | "error" | "offline"; text?: string };
 
-export function Booking() {
+export function Booking({ c, instagram }: { c: Copy["booking"]; instagram: string }) {
   const [status, setStatus] = useState<Status>({ kind: "idle" });
   const [invalid, setInvalid] = useState<Record<string, boolean>>({});
 
@@ -21,10 +23,11 @@ export function Booking() {
       name: !data.name?.trim(),
       email: !/^\S+@\S+\.\S+$/.test(data.email ?? ""),
       consent: data.consent !== "on",
+      privacy: data.privacy !== "on",
     };
     setInvalid(bad);
     if (Object.values(bad).some(Boolean)) {
-      setStatus({ kind: "error", text: "Please add your name, a valid email, and tick the box at the end." });
+      setStatus({ kind: "error", text: "Please add your name, a valid email, and tick both boxes at the end." });
       form.querySelector<HTMLElement>("[aria-invalid='true']")?.focus();
       return;
     }
@@ -40,7 +43,7 @@ export function Booking() {
         return;
       }
       if (!res.ok) throw new Error();
-      setStatus({ kind: "ok", text: `thank you, ${data.name.trim().split(" ")[0]} ♡ I'll reply within one working day.` });
+      setStatus({ kind: "ok", text: c.thanks.replace("{name}", data.name.trim().split(" ")[0]) });
       form.reset();
     } catch {
       setStatus({ kind: "error", text: "Something went wrong sending that. Please try again, or message me on Instagram." });
@@ -53,35 +56,31 @@ export function Booking() {
       <div className="container book__grid">
         <div className="book__intro">
           <Reveal>
-            <p className="eyebrow">Start with a conversation</p>
+            <p className="eyebrow">{c.eyebrow}</p>
             <h2 className="display h2" id="book-title">
-              Let&apos;s talk about how <em>you</em> cope{" "}
+              {c.titleStart} <em>{c.titleEmphasis}</em> {c.titleEnd}{" "}
               <Doodle name="sparkle" className="ico ico--lg" style={{ color: "var(--cornflower)" }} />
             </h2>
             <p>
-              Not sure if online therapy or my style is right for you? Send a short request and I&apos;ll get back to
-              you with times for a <b>free 15-minute fit check</b> by video or audio. Ask anything, get comfortable,
-              then decide.
+              <Rich text={c.body} />
             </p>
           </Reveal>
           <Reveal className="note book__note" rotate={-1.5} delay={0.15}>
             <span className="tape tape--blue" style={{ ["--r" as string]: "-5deg", top: -12, left: 24 }} />
             <p>
-              <b>Private and personal.</b> I read every request myself. The free consultation is a short fit check
-              about therapy, not a session.
+              <Rich text={c.note} />
             </p>
           </Reveal>
           <p className="crisis">
-            <b>In crisis?</b> This form isn&apos;t monitored around the clock. If you or someone else is in immediate
-            danger, call your local emergency number or go to your nearest emergency department.
+            <Rich text={c.crisis} />
           </p>
         </div>
 
         <Reveal>
           <form className="intake" onSubmit={onSubmit} noValidate aria-describedby="intake-help">
             <span className="tape tape--pink" style={{ ["--r" as string]: "3deg", top: -12, right: 60 }} />
-            <h3 className="display">Request a consultation</h3>
-            <p id="intake-help" className="intake__help">Fields marked * are required.</p>
+            <h3 className="display">{c.formTitle}</h3>
+            <p id="intake-help" className="intake__help">{c.required}</p>
 
             {/* honeypot: hidden from people, tempting to bots */}
             <label className="hp" aria-hidden="true">
@@ -121,12 +120,9 @@ export function Booking() {
                 <span>What would you like help with?</span>
                 <select name="focus" defaultValue="Not sure yet">
                   <option>Not sure yet</option>
-                  <option>Anxiety &amp; panic</option>
-                  <option>Depression &amp; low mood</option>
-                  <option>OCD &amp; intrusive thoughts</option>
-                  <option>Neurodiversity &amp; autism</option>
-                  <option>Personality disorders</option>
-                  <option>Psychological assessment</option>
+                  {services.map((s) => (
+                    <option key={s.slug}>{s.name}</option>
+                  ))}
                   <option>Something else</option>
                 </select>
               </label>
@@ -137,14 +133,26 @@ export function Booking() {
             </label>
             <label className={`check${invalid.consent ? " is-invalid" : ""}`}>
               <input type="checkbox" name="consent" aria-invalid={invalid.consent || undefined} />
+              <span>{c.consent}</span>
+            </label>
+            <label className={`check${invalid.privacy ? " is-invalid" : ""}`}>
+              <input type="checkbox" name="privacy" aria-invalid={invalid.privacy || undefined} />
               <span>
-                I understand the free consultation is a short, respectful conversation about starting therapy, and is
-                not a therapy session. *
+                {c.privacyConsent.split("Privacy Policy").map((part, i) => (
+                  <span key={i}>
+                    {i > 0 && (
+                      <a href="/privacy" target="_blank" rel="noopener">
+                        Privacy Policy
+                      </a>
+                    )}
+                    {part}
+                  </span>
+                ))}
               </span>
             </label>
 
             <GumButton type="submit" size="lg" block disabled={status.kind === "sending"}>
-              {status.kind === "sending" ? "Sending..." : "Send my request"}
+              {status.kind === "sending" ? "Sending..." : c.button}
             </GumButton>
 
             <AnimatePresence mode="wait">
@@ -160,7 +168,7 @@ export function Booking() {
                   {status.kind === "offline" ? (
                     <>
                       Online requests are opening soon. For now, please{" "}
-                      <a href={site.instagram} target="_blank" rel="noopener noreferrer">
+                      <a href={instagram} target="_blank" rel="noopener noreferrer">
                         message me on Instagram
                       </a>
                       .

@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 // flap opens and the letter slides up out of it.
 const ease = [0.22, 1, 0.36, 1] as const;
 
-export function Envelope({ quote, who, index }: { quote: string; who: string; index: number }) {
+export function Envelope({ quote, who, index, greeting }: { quote: string; who: string; index: number; greeting: string }) {
   const tone = index % 2 ? "pink" : "sky";
   return (
     <motion.figure
@@ -26,7 +26,7 @@ export function Envelope({ quote, who, index }: { quote: string; who: string; in
             <path d="M24 40C13 31 4.5 24 5 14.5 5.4 7.8 11 4 16.2 5c3.6.7 6 3.3 7.8 6.6 1.9-3.4 4.6-6.2 8.5-6.8C38 4 43.6 8.6 43 15.4 42.2 24.5 33.8 31.4 24 40Z" fill="currentColor" />
           </svg>
         </span>
-        <p className="envelope__to hand">dear Laraib,</p>
+        <p className="envelope__to hand">{greeting}</p>
         <blockquote>{quote}</blockquote>
         <figcaption className="hand">{who}</figcaption>
       </motion.div>

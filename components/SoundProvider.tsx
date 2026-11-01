@@ -63,12 +63,13 @@ const MASTER = 0.35;
 const STORAGE_KEY = "impsychout:sound";
 
 type Ctx = { enabled: boolean; toggle: () => void; play: (name: SoundName) => void };
-const SoundContext = createContext<Ctx>({ enabled: true, toggle: () => {}, play: () => {} });
+const SoundContext = createContext<Ctx>({ enabled: false, toggle: () => {}, play: () => {} });
 export const useSound = () => useContext(SoundContext);
 
 export function SoundProvider({ children }: { children: ReactNode }) {
-  const [enabled, setEnabled] = useState(true);
-  const enabledRef = useRef(true);
+  // Muted by default; the visitor turns sound on from the header and the choice is remembered.
+  const [enabled, setEnabled] = useState(false);
+  const enabledRef = useRef(false);
   const ctxRef = useRef<AudioContext | null>(null);
   const outRef = useRef<AudioNode | null>(null);
   const buffers = useRef(new Map<string, AudioBuffer>());
@@ -133,13 +134,14 @@ export function SoundProvider({ children }: { children: ReactNode }) {
     try {
       localStorage.setItem(STORAGE_KEY, next ? "on" : "off");
     } catch {}
-  }, []);
+    if (next) void ensureAudio().then(() => play("tap"));
+  }, [ensureAudio, play]);
 
   useEffect(() => {
     try {
-      if (localStorage.getItem(STORAGE_KEY) === "off") {
-        enabledRef.current = false;
-        setEnabled(false);
+      if (localStorage.getItem(STORAGE_KEY) === "on") {
+        enabledRef.current = true;
+        setEnabled(true);
       }
     } catch {}
 

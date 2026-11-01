@@ -14,3 +14,6 @@ Thumbs.db
 /*.jpeg
 /*.jpg
 /portable-taste/
+
+# Safe Haven local content store (dev only)
+.data/
