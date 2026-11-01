@@ -9,7 +9,7 @@ import { services } from "@/lib/services";
 export const metadata: Metadata = {
   title: "Online Therapy Services",
   description:
-    "Online therapy services with clinical psychologist Laraib Fatima Ahmed: anxiety, depression, OCD, neurodiversity, personality disorders, schizophrenia-spectrum support, individual therapy and assessment.",
+    "Online therapy services with clinical psychologist Laraib Fatima Ahmed: anxiety, depression, OCD, neurodiversity, personality disorders, individual therapy and psychological assessment.",
   alternates: { canonical: "/services" },
 };
 

@@ -50,11 +50,11 @@ function Piece({
       whileDrag={{ scale: 1.05, rotate: rest * 0.4, cursor: "grabbing" }}
       onDragStart={() => {
         setLift(20); // whatever you pick up comes to the top of the pile
-        play("tap");
+        play("pick");
       }}
       onDragEnd={() => {
         setLift(z + 10);
-        play("tap");
+        play("place");
       }}
     >
       {children}

@@ -245,7 +245,7 @@ export function Faq({ items = faqs, title = "Before you reach out" }: { items?: 
           {items.map((f, i) => (
             <Reveal key={f.q} delay={i * 0.05}>
               <details className="faq__item" name="faq">
-                <summary data-sfx-press="paper">
+                <summary data-sfx-press="drop">
                   <span>{f.q}</span>
                   <span className="faq__plus" aria-hidden="true" />
                 </summary>
@@ -262,79 +262,46 @@ export function Faq({ items = faqs, title = "Before you reach out" }: { items?: 
 export function Footer() {
   return (
     <footer className="footer">
-      <div className="footer__sky" aria-hidden="true" />
-      <div className="container footer__inner">
-        <div className="footer__card">
-          <span className="tape tape--blue" style={{ ["--r" as string]: "-5deg", top: -14, left: 40 }} />
-          <span className="tape tape--pink" style={{ ["--r" as string]: "6deg", top: -12, right: 48 }} />
-          <div className="footer__signoff">
-            <p className="eyebrow">Whenever you&apos;re ready</p>
-            <p className="display footer__line">
-              I&apos;ll be here, <em>kettle on.</em>
-            </p>
-            <p className="footer__blurb">
-              Online therapy with clinical psychologist Laraib Fatima Ahmed. A free 15-minute consultation is the
-              gentlest way to start. No pressure, no commitment.
-            </p>
-            <GumButton href="/#book">Request a free consultation</GumButton>
-          </div>
-
-          <nav className="footer__col" aria-label="Explore">
-            <p className="footer__h">Explore</p>
-            {nav.map((n) => (
-              <a key={n.href} href={n.href} data-sfx-hover="tick">
-                {n.label}
-              </a>
-            ))}
-          </nav>
-
-          <nav className="footer__col" aria-label="Services">
-            <p className="footer__h">How I help</p>
-            {services.slice(0, 6).map((s) => (
-              <Link key={s.slug} href={`/services/${s.slug}`} data-sfx-hover="tick">
-                {s.name}
-              </Link>
-            ))}
-          </nav>
-
-          <div className="footer__col">
-            <p className="footer__h">Say hello</p>
-            <a href="/#book" data-sfx-hover="tick">
-              Request a consultation
-            </a>
-            <a href={site.instagram} target="_blank" rel="noopener noreferrer" data-sfx-hover="tick">
-              Instagram @impsychout
-            </a>
-            <p className="footer__note">Online sessions, wherever you are.</p>
-          </div>
-        </div>
-
-        <div className="footer__ledge">
-          <p className="footer__sign">
-            <span className="hand">with care, Laraib</span>
-            <span>and her two very serious supervisors</span>
-          </p>
-          <div className="footer__cats" aria-hidden="true">
-            <span className="footer__cat footer__cat--daisy">
-              <img src="/art/daisy-loaf.webp" alt="" width={520} height={273} loading="lazy" />
-              <span className="footer__cat-name hand">Daisy, napping</span>
+      <div className="container footer__grid">
+        <div>
+          <a className="brand" href="/">
+            <span className="brand__text">
+              <span className="brand__name">im psych out</span>
+              <span className="brand__tag">your safe space to talk</span>
             </span>
-            <span className="footer__cat footer__cat--pumpkin">
-              <img src="/art/pumpkin-sit.webp" alt="" width={356} height={520} loading="lazy" />
-              <span className="footer__cat-name hand">Pumpkin, on duty</span>
-            </span>
-          </div>
-        </div>
-
-        <div className="footer__base">
-          <p>
-            © {new Date().getFullYear()} ImPsychOut · Not an emergency service. If you&apos;re in danger, call your
-            local emergency number.
-          </p>
-          <p className="footer__wordmark" aria-hidden="true">
-            im psych out
+          </a>
+          <p className="footer__blurb">
+            Online therapy with clinical psychologist Laraib Fatima Ahmed. Uncomplicating psychology, one gentle
+            conversation at a time.
           </p>
         </div>
+        <nav className="footer__col" aria-label="Footer">
+          <p className="footer__h">Explore</p>
+          {nav.map((n) => (
+            <a key={n.href} href={n.href} data-sfx-hover="tick">
+              {n.label}
+            </a>
+          ))}
+        </nav>
+        <div className="footer__col">
+          <p className="footer__h">Connect</p>
+          <a href="/#book" data-sfx-hover="tick">
+            Request a consultation
+          </a>
+          <a href={site.instagram} target="_blank" rel="noopener noreferrer" data-sfx-hover="tick">
+            Instagram
+          </a>
+        </div>
+      </div>
+      <div className="container footer__base">
+        <p>
+          <span className="hand footer__sign">with care, Laraib</span> © {new Date().getFullYear()} ImPsychOut. Not an
+          emergency service.
+        </p>
+        <span className="footer__cats" aria-hidden="true">
+          <img src="/art/daisy-loaf.webp" alt="" width={520} height={273} loading="lazy" title="Daisy" />
+          <img src="/art/pumpkin-sit.webp" alt="" width={356} height={520} loading="lazy" title="Pumpkin" />
+        </span>
       </div>
     </footer>
   );

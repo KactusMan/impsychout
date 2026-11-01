@@ -3,7 +3,7 @@ import { Booking } from "@/components/Booking";
 import { Hero } from "@/components/Hero";
 import { Process } from "@/components/Process";
 import { About, Credentials, Faq, Feed, Focus, KindWords } from "@/components/Sections";
-import { Storyteller } from "@/components/Storyteller";
+import { Untangle } from "@/components/Untangle";
 import { jsonLd } from "@/lib/schema";
 
 export default function Home() {
@@ -11,7 +11,7 @@ export default function Home() {
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <Hero />
-      <Storyteller />
+      <Untangle />
       <About />
       <Focus />
       <Approach />

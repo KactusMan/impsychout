@@ -87,7 +87,7 @@ export function PlayRoom() {
             setPose(c, "trot", now);
           } else if (c.pose === "trot") {
             setPose(c, "pounce", now, 650); // caught up: crouch, wiggle, pounce
-            play("tick");
+            play("plop");
           } else if (c.pose === "pounce") {
             setPose(c, "sit", now, 400);
           }

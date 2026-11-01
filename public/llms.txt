@@ -8,7 +8,7 @@
 - Format: online video sessions, worldwide
 - Who: teens (with a parent or guardian involved at first contact), young adults and adults
 - Approaches: CBT, DBT, ACT, REBT, Positive Behaviour Management, Eidetic therapy
-- Areas of focus: anxiety and panic, depression and low mood, OCD and intrusive thoughts, neurodiversity and autism, personality disorders, schizophrenia-spectrum, individual therapy, psychological assessment
+- Areas of focus: anxiety and panic, depression and low mood, OCD and intrusive thoughts, neurodiversity and autism, personality disorders, individual therapy, psychological assessment
 - Training: MSc Clinical Psychology (Merit), BS (Hons) Psychology (Air University), Psychological First Aid (Johns Hopkins University), Good Clinical Practice (NIDA)
 - Experience: Sit With It Therapy Hub, Autism Life Centres (UK), PAF Hospital Psychiatric Department
 - Not an emergency service. People in immediate danger should contact local emergency services.
@@ -27,7 +27,6 @@
 - [Online therapy for OCD and intrusive thoughts](/services/ocd-and-intrusive-thoughts)
 - [Neurodiversity-affirming therapy for autism and ADHD](/services/neurodiversity-and-autism)
 - [DBT-informed therapy for personality disorders](/services/personality-disorders)
-- [Psychological support for schizophrenia-spectrum conditions](/services/schizophrenia-spectrum)
 - [Individual online therapy and counselling](/services/individual-therapy)
 - [Online psychological assessment](/services/psychological-assessment)
 - [Sitemap](/sitemap.xml)

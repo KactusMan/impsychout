@@ -22,11 +22,26 @@ const FILES: Record<string, string> = {
   "thock-3": "/sfx/thock-3.mp3",
   "thock-4": "/sfx/thock-4.mp3",
   tick: "/sfx/tick.mp3",
-  swish: "/sfx/swish.mp3",
   paper: "/sfx/page.mp3",
+  "drop-1": "/sfx/drop-1.mp3",
+  "drop-2": "/sfx/drop-2.mp3",
+  slide: "/sfx/slide.mp3",
+  "marimba-c5": "/sfx/marimba-c5.mp3",
+  "marimba-d5": "/sfx/marimba-d5.mp3",
+  "marimba-e5": "/sfx/marimba-e5.mp3",
+  "marimba-g5": "/sfx/marimba-g5.mp3",
+  "marimba-a5": "/sfx/marimba-a5.mp3",
+  "paper-pick": "/sfx/paper-pick.mp3",
+  "paper-drop": "/sfx/paper-drop.mp3",
+  plop: "/sfx/plop.mp3",
+  "menu-tick": "/sfx/menu-tick.mp3",
 };
 
-export type SoundName = "note" | "tap" | "thock" | "tick" | "swish" | "paper";
+// One voice per job, so every section has its own sound:
+// note/tap = buttons, tick = nav links, menu = nav dropdown, thock = care cards,
+// paper = folder tabs, slide = carousel, drop = FAQ, marimba = reframing thoughts,
+// pick/place = moving hero pieces, plop = Pumpkin's pounce.
+export type SoundName = "note" | "tap" | "thock" | "tick" | "menu" | "paper" | "slide" | "drop" | "marimba" | "pick" | "place" | "plop";
 
 // Each sound's level relative to the master, and how long it may ring.
 const VOICE: Record<SoundName, { keys: string[]; level: number; max: number; rate?: [number, number] }> = {
@@ -34,8 +49,14 @@ const VOICE: Record<SoundName, { keys: string[]; level: number; max: number; rat
   tap: { keys: ["tap-1", "tap-2"], level: 0.75, max: 0.4, rate: [0.94, 1.02] },
   thock: { keys: ["thock-1", "thock-2", "thock-3", "thock-4"], level: 0.55, max: 0.35, rate: [0.92, 1.0] },
   tick: { keys: ["tick"], level: 0.3, max: 0.2, rate: [0.95, 1.08] },
-  swish: { keys: ["swish"], level: 0.4, max: 0.6 },
+  menu: { keys: ["menu-tick"], level: 0.5, max: 0.15 },
   paper: { keys: ["paper"], level: 0.6, max: 0.8 },
+  slide: { keys: ["slide"], level: 0.45, max: 0.7 },
+  drop: { keys: ["drop-1", "drop-2"], level: 0.5, max: 0.4, rate: [0.96, 1.04] },
+  marimba: { keys: ["marimba-c5", "marimba-d5", "marimba-e5", "marimba-g5", "marimba-a5"], level: 0.38, max: 0.9 },
+  pick: { keys: ["paper-pick"], level: 0.45, max: 0.5 },
+  place: { keys: ["paper-drop"], level: 0.6, max: 0.35 },
+  plop: { keys: ["plop"], level: 0.4, max: 0.3 },
 };
 
 const MASTER = 0.35;
@@ -135,7 +156,9 @@ export function SoundProvider({ children }: { children: ReactNode }) {
     };
     const onDown = (e: PointerEvent) => {
       const el = find(e, "data-sfx-press");
-      if (el) play(el.dataset.sfxPress as SoundName);
+      if (!el) return;
+      if (el.tagName === "SUMMARY" && (el.parentElement as HTMLDetailsElement | null)?.open) return; // sound on open only
+      play(el.dataset.sfxPress as SoundName);
     };
     document.addEventListener("pointerover", onOver);
     document.addEventListener("pointerdown", onDown);

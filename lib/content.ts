@@ -56,12 +56,6 @@ export const focusAreas: { title: string; body: string; tone: Tone; icon: Doodle
     icon: "heart",
   },
   {
-    title: "Schizophrenia-spectrum",
-    body: "Grounded psychoeducation, stabilising routines, family guidance and compassionate long-term care.",
-    tone: "sky",
-    icon: "flower",
-  },
-  {
     title: "Individual therapy",
     body: "A gentle, confidential one-to-one space to untangle complex emotions, navigate life transitions and understand yourself.",
     tone: "paper",

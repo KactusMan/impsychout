@@ -44,7 +44,7 @@ export function Process() {
           }
         });
         setIndex((prev) => {
-          if (prev !== best) play("paper");
+          if (prev !== best) play("slide");
           return best;
         });
       });
@@ -149,7 +149,7 @@ export function Process() {
         </ol>
 
         <div className="carousel__controls container">
-          <button className="carousel__btn" onClick={() => goTo(index - 1)} disabled={index === 0} aria-label="Previous step" data-sfx-hover="tick" data-sfx-press="tap">
+          <button className="carousel__btn" onClick={() => goTo(index - 1)} disabled={index === 0} aria-label="Previous step">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </button>
           <div className="carousel__dots" role="group" aria-label="Choose a step">
@@ -165,7 +165,7 @@ export function Process() {
               </button>
             ))}
           </div>
-          <button className="carousel__btn" onClick={() => goTo(index + 1)} disabled={index === steps.length - 1} aria-label="Next step" data-sfx-hover="tick" data-sfx-press="tap">
+          <button className="carousel__btn" onClick={() => goTo(index + 1)} disabled={index === steps.length - 1} aria-label="Next step">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </button>
         </div>

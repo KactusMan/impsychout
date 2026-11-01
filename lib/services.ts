@@ -286,58 +286,6 @@ export const services: Service[] = [
     related: ["depression-and-low-mood", "anxiety-and-panic", "individual-therapy"],
   },
   {
-    slug: "schizophrenia-spectrum",
-    icon: "flower",
-    name: "Schizophrenia-spectrum",
-    short: "Grounded psychoeducation, stabilising routines, family guidance and compassionate long-term care.",
-    metaTitle: "Psychological Support for Schizophrenia-Spectrum Conditions",
-    metaDescription:
-      "Compassionate online psychological support for schizophrenia-spectrum conditions, alongside your medical team. Psychoeducation, routines and family guidance with Laraib Fatima Ahmed.",
-    h1: "Psychological support for schizophrenia-spectrum conditions",
-    answer:
-      "Psychological support for schizophrenia-spectrum conditions works alongside your psychiatrist or care team. It focuses on understanding your experiences, building stabilising routines, coping with distressing symptoms and supporting the people around you.",
-    signsTitle: "Support can help with",
-    signs: [
-      "Making sense of a recent diagnosis",
-      "Coping with voices, unusual beliefs or feeling watched",
-      "Keeping routines, sleep and stress steady",
-      "Spotting early warning signs and planning for them",
-      "Helping family understand and respond with less worry",
-    ],
-    help: [
-      {
-        title: "Clear, calm understanding",
-        body: "Psychoeducation means learning how these experiences work, without jargon or fear. Families often find this as helpful as the person living with it.",
-      },
-      {
-        title: "Stability first",
-        body: "We work on the foundations that protect wellbeing: sleep, routine, stress, and a relapse prevention plan you've shaped yourself.",
-      },
-      {
-        title: "Long-term, collaborative care",
-        body: "This is steady, ongoing support at a pace that suits you, and we keep in step with your medical care.",
-      },
-    ],
-    approaches: ["cbt", "pbm", "act"],
-    sessions:
-      "Sessions are 50 minutes over video, usually weekly or fortnightly. Family members can join some sessions if you'd like them to.",
-    faqs: [
-      {
-        q: "Does this replace my psychiatrist or medication?",
-        a: "No. Psychological support works alongside medical care, never instead of it. Please don't change any medication without speaking to your prescriber.",
-      },
-      {
-        q: "Can my family get guidance too?",
-        a: "Yes, with your consent. Family sessions can help everyone understand what's happening and how to help.",
-      },
-      {
-        q: "Is online therapy right if I'm very unwell right now?",
-        a: "During an acute episode, in-person and medical care come first. Online support is best once things are a little steadier, and I'll be honest if a different service would serve you better.",
-      },
-    ],
-    related: ["psychological-assessment", "individual-therapy", "depression-and-low-mood"],
-  },
-  {
     slug: "individual-therapy",
     icon: "plane",
     name: "Individual therapy",
@@ -440,7 +388,7 @@ export const services: Service[] = [
         a: "No. It's a focused piece of work to understand what's happening. Many people go on to therapy afterwards, but there's no obligation.",
       },
     ],
-    related: ["neurodiversity-and-autism", "schizophrenia-spectrum", "individual-therapy"],
+    related: ["neurodiversity-and-autism", "anxiety-and-panic", "individual-therapy"],
   },
 ];
 
