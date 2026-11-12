@@ -3,13 +3,14 @@
 import { useEffect, useMemo, useState } from "react";
 import type { Copy } from "@/lib/copy";
 
-// Safe Haven: edit every piece of text on the site. Fields are generated from the content model,
-// so new sections show up here automatically. Technical values (icons, colours, links) are hidden.
+// Safe Haven: edit every piece of text and every photo on the site. Fields are generated from the
+// content model, so new sections show up here automatically: any `src` becomes a photo picker.
+// Technical values (icons, colours, links) are hidden.
 
-const HIDDEN = new Set(["id", "slug", "icon", "color", "tone", "src", "related", "approaches"]);
+const HIDDEN = new Set(["id", "slug", "icon", "color", "tone", "related", "approaches"]);
 
 const SECTIONS: { key: keyof Copy; label: string; where: string }[] = [
-  { key: "hero", label: "Top of the page", where: "The first thing visitors see" },
+  { key: "hero", label: "Top of the page", where: "The first thing visitors see, including your photo" },
   { key: "untangle", label: "Untangling it, together", where: "The thread of thoughts" },
   { key: "about", label: "About & the cats", where: "About my practice" },
   { key: "care", label: "Specialised care", where: "The care cards heading" },
@@ -18,7 +19,7 @@ const SECTIONS: { key: keyof Copy; label: string; where: string }[] = [
   { key: "process", label: "What to expect", where: "The four-step carousel" },
   { key: "credentials", label: "Credentials", where: "Training and experience" },
   { key: "kindWords", label: "Kind words", where: "Letters in envelopes" },
-  { key: "feed", label: "Instagram", where: "Fresh from the feed" },
+  { key: "feed", label: "Instagram", where: "Fresh from the feed: the post pictures" },
   { key: "faq", label: "FAQ", where: "Before you reach out" },
   { key: "booking", label: "Booking form", where: "Request a consultation" },
   { key: "footer", label: "Footer", where: "Bottom of every page" },
@@ -32,6 +33,7 @@ const human = (k: string) =>
     .replace(/\bQ\b/, "Question")
     .replace(/\bA\b/, "Answer")
     .replace(/\bH1\b/i, "Page heading")
+    .replace(/^Alt$/, "Describe the photo (read aloud to people who can't see it)")
     .replace(/Meta title/i, "Google title")
     .replace(/Meta description/i, "Google description");
 
@@ -45,14 +47,89 @@ const blankLike = (v: J): J => {
 };
 const preview = (v: J) => {
   if (v && typeof v === "object") {
-    const s = Object.entries(v as Record<string, J>).find(([k, x]) => !HIDDEN.has(k) && typeof x === "string" && x);
+    const s = Object.entries(v as Record<string, J>).find(([k, x]) => !HIDDEN.has(k) && k !== "src" && typeof x === "string" && x);
     if (s) return String(s[1]).slice(0, 60);
   }
   return "";
 };
 
+// Photos are shrunk in the browser before upload: quicker on a phone connection, well under the
+// upload limit, and re-drawing the picture drops hidden details such as where it was taken.
+async function shrink(file: File): Promise<Blob> {
+  const bmp = await createImageBitmap(file, { imageOrientation: "from-image" });
+  const scale = Math.min(1, 1800 / Math.max(bmp.width, bmp.height));
+  const w = Math.round(bmp.width * scale);
+  const h = Math.round(bmp.height * scale);
+  const canvas = document.createElement("canvas");
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext("2d")!;
+  ctx.fillStyle = "#ffffff"; // see-through parts of a PNG become white, not black
+  ctx.fillRect(0, 0, w, h);
+  ctx.drawImage(bmp, 0, 0, w, h);
+  bmp.close();
+  return new Promise((ok, fail) => canvas.toBlob((b) => (b ? ok(b) : fail(new Error("encode"))), "image/jpeg", 0.86));
+}
+
+function PhotoField({ value, onChange, path }: { value: string; onChange: (v: J) => void; path: string }) {
+  const [state, setState] = useState<{ kind: "idle" | "busy" | "done" | "error"; text?: string }>({ kind: "idle" });
+  const id = `f-${path}`;
+
+  async function pick(file: File | undefined) {
+    if (!file) return;
+    setState({ kind: "busy", text: "Uploading..." });
+    let blob: Blob;
+    try {
+      blob = await shrink(file);
+    } catch {
+      setState({ kind: "error", text: "This photo couldn't be opened. Try a JPG or PNG (on iPhone, a screenshot of it works too)." });
+      return;
+    }
+    const hint = path.replace(/-src$/, "");
+    const res = await fetch(`/api/safehaven/upload?name=${encodeURIComponent(hint)}`, { method: "POST", headers: { "Content-Type": "image/jpeg" }, body: blob }).catch(() => null);
+    const data = res?.ok ? ((await res.json()) as { src: string }) : null;
+    if (!data) {
+      const why = res?.status === 401 ? "Your session has ended. Sign in again." : res?.status === 503 ? "Storage isn't connected yet." : "Couldn't upload. Please try again.";
+      setState({ kind: "error", text: why });
+      return;
+    }
+    onChange(data.src);
+    setState({ kind: "done", text: "New photo ready. Press Save changes to put it on the site." });
+  }
+
+  return (
+    <div className="sh-field sh-photo">
+      <span>Current photo</span>
+      <div className="sh-photo__row">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={value} alt="" className="sh-photo__thumb" />
+        <div className="sh-photo__actions">
+          <label htmlFor={id} className={`sh-btn sh-btn--ghost${state.kind === "busy" ? " is-busy" : ""}`}>
+            {state.kind === "busy" ? "Uploading..." : "Replace photo"}
+          </label>
+          <input
+            id={id}
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/*"
+            className="sh-photo__input"
+            disabled={state.kind === "busy"}
+            onChange={(e) => {
+              pick(e.target.files?.[0]);
+              e.target.value = "";
+            }}
+          />
+          <p className={`sh-photo__note${state.kind === "error" ? " is-error" : ""}`} role="status">
+            {state.text ?? "JPG or PNG. It's cropped to fit the frame, so keep the important part near the middle."}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Field({ name, value, onChange, path }: { name: string; value: J; onChange: (v: J) => void; path: string }) {
   if (HIDDEN.has(name)) return null;
+  if (name === "src" && typeof value === "string") return <PhotoField value={value} onChange={onChange} path={path} />;
 
   if (typeof value === "string") {
     const long = value.length > 70 || /body|lead|answer|quote|description|paragraph|sub|note|crisis|consent|reframe|short|sessions|\ba\b/i.test(name);
@@ -216,7 +293,7 @@ export function Dashboard({ initial, defaults, storage, insights }: { initial: C
               <div>
                 <h1>{meta.label}</h1>
                 <p className="sh-muted">
-                  {meta.where}. Tip: write <code>**like this**</code> to make words bold.
+                  {meta.where}. Tip: write <code>**like this**</code> to make words bold. Photos and text go live when you press Save changes.
                 </p>
               </div>
               <button

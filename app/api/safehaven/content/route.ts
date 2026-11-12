@@ -4,20 +4,25 @@ import { COPY_TAG, storageReady, writeStored } from "@/lib/cms";
 import { defaultCopy } from "@/lib/copy";
 
 // Saves the whole edited copy document. Middleware has already checked the session.
-// Only known sections are kept, and only plain text, numbers and lists of them are accepted.
+// Only known sections are kept, and only plain text, numbers, photo paths and lists of them are accepted.
 type J = unknown;
 
-function sanitize(base: J, val: J, depth = 0): J {
+// Photos may only point at the site's own images or at photos uploaded in Safe Haven: anything
+// else (an outside link, say) would stop the page from rendering.
+const IMAGE_SRC = /^\/(images\/[\w/-]+|media\/[a-z0-9-]+)\.(jpg|jpeg|png|webp)$/;
+
+function sanitize(base: J, val: J, depth = 0, key = ""): J {
   if (depth > 8) return base;
+  if (key === "src") return typeof val === "string" && IMAGE_SRC.test(val) ? val : base;
   if (Array.isArray(base)) {
     if (!Array.isArray(val)) return base;
-    return val.slice(0, 60).map((v) => sanitize(base[0], v, depth + 1));
+    return val.slice(0, 60).map((v) => sanitize(base[0], v, depth + 1, key));
   }
   if (base && typeof base === "object") {
     if (!val || typeof val !== "object" || Array.isArray(val)) return base;
     const out: Record<string, J> = {};
     for (const k of Object.keys(base as Record<string, J>)) {
-      if (k in (val as Record<string, J>)) out[k] = sanitize((base as Record<string, J>)[k], (val as Record<string, J>)[k], depth + 1);
+      if (k in (val as Record<string, J>)) out[k] = sanitize((base as Record<string, J>)[k], (val as Record<string, J>)[k], depth + 1, k);
     }
     return out;
   }

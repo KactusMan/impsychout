@@ -35,6 +35,17 @@
 .sh-field textarea { resize: vertical; }
 .sh-field input:focus, .sh-field textarea:focus { border-color: #7fa3d6; outline: none; box-shadow: 0 0 0 3px rgba(127, 163, 214, .25); }
 
+/* photos */
+.sh-photo__row { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+.sh-photo__thumb { width: 8.5rem; aspect-ratio: 4 / 5; object-fit: cover; border-radius: .6rem; border: 1.5px solid rgba(31, 47, 87, .15); background: #e3ecf7; }
+.sh-photo__actions { display: grid; gap: .45rem; flex: 1 1 14rem; justify-items: start; }
+.sh-photo__input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.sh-photo__input:focus-visible + .sh-photo__note, .sh-photo label:has(+ .sh-photo__input:focus-visible) { outline: 3px solid #7fa3d6; outline-offset: 2px; }
+.sh-photo label.sh-btn { font-weight: 600; font-size: .92rem; }
+.sh-photo label.is-busy { opacity: .6; cursor: progress; }
+.sh-photo__note { margin: 0; font-size: .82rem; color: #5b6680; line-height: 1.45; }
+.sh-photo__note.is-error { color: #a5465a; }
+
 /* app frame */
 .sh-app { padding-bottom: 6rem; }
 .sh-top { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; gap: 1.5rem; padding: .8rem 1.5rem; background: #fffdf8; border-bottom: 1.5px solid rgba(31, 47, 87, .14); }

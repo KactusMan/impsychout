@@ -190,7 +190,7 @@ export function Feed({ c, instagram }: { c: Copy["feed"]; instagram: string }) {
         <SectionHead id="feed-title" eyebrow={c.eyebrow} title={c.title} sub={c.sub} />
         <ul className="feed__row">
           {c.posts.map((p, i) => (
-            <Reveal as="li" key={p.src} rotate={[-3, 2, -1, 3][i % 4]} delay={i * 0.08} y={40}>
+            <Reveal as="li" key={i} rotate={[-3, 2, -1, 3][i % 4]} delay={i * 0.08} y={40}>
               <a className="polaroid" href={instagram} target="_blank" rel="noopener noreferrer" data-sfx-hover="tick">
                 <span
                   className={`tape ${["tape--pink", "tape--blue", "tape--pink", "tape--blue"][i % 4]}`}

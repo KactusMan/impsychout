@@ -165,8 +165,8 @@ export function Hero({ c }: { c: Copy["hero"] }) {
           <figure className="polaroid">
             <span className="tape tape--pink" style={{ ["--r" as string]: "-6deg", top: -16, left: "38%" }} />
             <Image
-              src="/images/laraib-portrait.jpg"
-              alt="Laraib Fatima Ahmed, clinical psychologist"
+              src={c.photo.src}
+              alt={c.photo.alt}
               width={960}
               height={781}
               priority

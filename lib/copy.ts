@@ -19,6 +19,7 @@ export const defaultCopy = {
     primaryButton: "Request a free consultation",
     secondaryButton: "See how I can help",
     trust: ["Confidential online sessions", "Evidence-based: CBT, DBT, ACT", "BPS Graduate Member"],
+    photo: { src: "/images/laraib-portrait.jpg", alt: "Laraib Fatima Ahmed, clinical psychologist" },
     photoCaption: "hi, I'm Laraib ♡",
     note: "a place to uncomplicate your thoughts & heal at your own pace",
     stickers: ["Trauma-informed", "Safe & seen", "Emotion regulation"],
@@ -138,4 +139,4 @@ export const defaultCopy = {
 export type Copy = typeof defaultCopy;
 
 // Keys that hold technical values rather than words; the editor hides them.
-export const HIDDEN_KEYS = new Set(["id", "slug", "icon", "color", "tone", "src", "related", "approaches"]);
+export const HIDDEN_KEYS = new Set(["id", "slug", "icon", "color", "tone", "related", "approaches"]);
