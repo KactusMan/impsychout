@@ -1,12 +1,34 @@
 import { NextResponse } from "next/server";
+import { followUpEmail, notificationEmail, type Request as ConsultationRequest } from "@/lib/emails";
 
-// Receives consultation requests from the booking form and emails them to Laraib via Resend.
-// Needs two environment variables in Vercel: RESEND_API_KEY and CONSULTATION_TO_EMAIL
-// (and optionally CONSULTATION_FROM_EMAIL on a verified domain). Without them it answers 503
-// so the form can point people to Instagram instead of silently dropping their message.
+// Receives consultation requests from the booking form and, through Resend:
+//   1. emails the request to Laraib (impsychout@gmail.com unless CONSULTATION_TO_EMAIL says otherwise)
+//   2. sends the person a warm "your request reached me" follow-up, styled like the site
+//
+// Environment variables (Vercel → Project → Settings → Environment Variables):
+//   RESEND_API_KEY            required
+//   CONSULTATION_TO_EMAIL     optional, defaults to impsychout@gmail.com
+//   CONSULTATION_FROM_EMAIL   optional, e.g. "Laraib at ImPsychOut <hello@yourdomain.com>"
+//
+// Until a domain is verified in Resend, emails come from onboarding@resend.dev and Resend only
+// delivers to the address that owns the Resend account. The follow-up to clients needs a
+// verified domain; if Resend refuses it, the request still goes through and Laraib still hears
+// about it. Without RESEND_API_KEY the route answers 503 so the form points people to Instagram.
+
+const TO = process.env.CONSULTATION_TO_EMAIL || "impsychout@gmail.com";
+const FROM = process.env.CONSULTATION_FROM_EMAIL || "ImPsychOut <onboarding@resend.dev>";
 
 const clean = (v: unknown, max = 2000) => (typeof v === "string" ? v.trim().slice(0, max) : "");
-const escape = (s: string) => s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+
+async function send(key: string, email: Record<string, unknown>) {
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ from: FROM, ...email }),
+  });
+  if (!res.ok) console.error(`[consultation] Resend ${res.status}: ${(await res.text()).slice(0, 300)}`);
+  return res.ok;
+}
 
 export async function POST(req: Request) {
   let body: Record<string, unknown>;
@@ -19,7 +41,7 @@ export async function POST(req: Request) {
   // Bots fill the hidden field; pretend it worked.
   if (clean(body.company)) return NextResponse.json({ ok: true });
 
-  const fields = {
+  const r: ConsultationRequest = {
     name: clean(body.name, 120),
     email: clean(body.email, 200),
     pronouns: clean(body.pronouns, 60),
@@ -28,30 +50,21 @@ export async function POST(req: Request) {
     focus: clean(body.focus, 80),
     message: clean(body.message),
   };
-  if (!fields.name || !/^\S+@\S+\.\S+$/.test(fields.email) || body.consent !== "on" || body.privacy !== "on") {
+  if (!r.name || !/^\S+@\S+\.\S+$/.test(r.email) || body.consent !== "on" || body.privacy !== "on") {
     return NextResponse.json({ error: "invalid" }, { status: 422 });
   }
 
   const key = process.env.RESEND_API_KEY;
-  const to = process.env.CONSULTATION_TO_EMAIL;
-  if (!key || !to) return NextResponse.json({ error: "not_configured" }, { status: 503 });
+  if (!key) return NextResponse.json({ error: "not_configured" }, { status: 503 });
 
-  const rows = Object.entries(fields)
-    .filter(([, v]) => v)
-    .map(([k, v]) => `<p><b>${k}</b><br>${escape(v).replace(/\n/g, "<br>")}</p>`)
-    .join("");
+  // Laraib's copy is the one that matters: if it can't be sent, tell the person so they can retry.
+  const note = notificationEmail(r);
+  const delivered = await send(key, { to: [TO], reply_to: r.email, subject: note.subject, html: note.html, text: note.text });
+  if (!delivered) return NextResponse.json({ error: "send_failed" }, { status: 502 });
 
-  const res = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      from: process.env.CONSULTATION_FROM_EMAIL ?? "ImPsychOut <onboarding@resend.dev>",
-      to: [to],
-      reply_to: fields.email,
-      subject: `New consultation request from ${fields.name}`,
-      html: rows,
-    }),
-  });
-  if (!res.ok) return NextResponse.json({ error: "send_failed" }, { status: 502 });
-  return NextResponse.json({ ok: true });
+  // The follow-up is a kindness, not a requirement: never fail the request over it.
+  const thanks = followUpEmail(r);
+  const followedUp = await send(key, { to: [r.email], reply_to: TO, subject: thanks.subject, html: thanks.html, text: thanks.text }).catch(() => false);
+
+  return NextResponse.json({ ok: true, followUp: followedUp });
 }

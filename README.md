@@ -21,10 +21,15 @@ npm run build
 
 ## Booking form email
 
-The form posts to `/api/consultation`, which emails requests through [Resend](https://resend.com). Set these in Vercel → Project → Settings → Environment Variables:
+The form posts to `/api/consultation`, which uses [Resend](https://resend.com) to send two emails (templates in `lib/emails.ts`):
 
-- `RESEND_API_KEY`
-- `CONSULTATION_TO_EMAIL` (where requests go)
-- `CONSULTATION_FROM_EMAIL` (optional, needs a verified domain)
+1. the request to Laraib at `impsychout@gmail.com`
+2. a warm "your request reached me" follow-up to the person, styled like the site
 
-Until they're set, the form tells people to message on Instagram instead.
+Set these in Vercel → Project → Settings → Environment Variables, then redeploy:
+
+- `RESEND_API_KEY` (required)
+- `CONSULTATION_TO_EMAIL` (optional, defaults to `impsychout@gmail.com`)
+- `CONSULTATION_FROM_EMAIL` (optional, e.g. `Laraib at ImPsychOut <hello@yourdomain.com>`, needs a domain verified in Resend)
+
+Until a domain is verified, Resend sends from `onboarding@resend.dev` and only delivers to the email address that owns the Resend account, so the follow-up to clients is skipped (the request itself still goes through). Without `RESEND_API_KEY` the form tells people to message on Instagram instead.
