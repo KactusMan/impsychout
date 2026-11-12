@@ -74,7 +74,7 @@ export function About({ c }: { c: Copy["about"] }) {
             <p className="hand">{c.noteTitle}</p>
             <p>{c.noteBody}</p>
           </div>
-          <PlayRoom hint={c.playHint} />
+          <PlayRoom hint={c.playHint} touchHint={c.playHintTouch} />
           <dl className="about__cats">
             <div>
               <dt className="hand">Pumpkin</dt>
@@ -220,7 +220,7 @@ export function Faq({ items, title, eyebrow = "Good questions" }: { items: { q: 
           {items.map((f, i) => (
             <Reveal key={f.q + i} delay={i * 0.05}>
               <details className="faq__item" name="faq">
-                <summary data-sfx-press="drop">
+                <summary data-sfx-press="open">
                   <span>{f.q}</span>
                   <span className="faq__plus" aria-hidden="true" />
                 </summary>

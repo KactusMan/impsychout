@@ -20,7 +20,7 @@ type Cat = {
 
 const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
 
-export function PlayRoom({ hint }: { hint: string }) {
+export function PlayRoom({ hint, touchHint }: { hint: string; touchHint: string }) {
   const room = useRef<HTMLDivElement>(null);
   const dot = useRef<HTMLDivElement>(null);
   const pumpkinEl = useRef<HTMLDivElement>(null);
@@ -35,9 +35,15 @@ export function PlayRoom({ hint }: { hint: string }) {
     let w = roomEl.clientWidth;
     let h = roomEl.clientHeight;
     const floorTop = () => h * 0.42; // cats stay on the floor, below the window line
+    const floorEnd = () => h - 30; // and far enough from the bottom edge that their name tags show
+    // On a phone the room is narrow, so everything is measured against its width: how close to the
+    // walls they may go (so they're never cut in half), and how much room Daisy keeps from Pumpkin.
+    const edge = () => (w < 520 ? 60 : 80);
+    const gap = () => Math.min(150, w * 0.36);
+    const personalSpace = () => Math.min(120, w * 0.3);
 
-    const pumpkin: Cat = { el: pumpkinEl.current!, x: w * 0.3, y: h * 0.82, face: 1, pose: "sit", until: 0 };
-    const daisy: Cat = { el: daisyEl.current!, x: w * 0.68, y: h * 0.88, face: -1, pose: "loaf", until: 0 };
+    const pumpkin: Cat = { el: pumpkinEl.current!, x: w * 0.28, y: Math.min(h * 0.82, h - 30), face: 1, pose: "sit", until: 0 };
+    const daisy: Cat = { el: daisyEl.current!, x: w * 0.72, y: Math.min(h * 0.88, h - 30), face: -1, pose: "loaf", until: 0 };
 
     const target = { x: w * 0.5, y: h * 0.7 };
     const history: { x: number; y: number; t: number }[] = [];
@@ -70,12 +76,13 @@ export function PlayRoom({ hint }: { hint: string }) {
       history.push({ x: target.x, y: target.y, t: now });
       while (history.length && now - history[0].t > 1400) history.shift();
 
-      const goalY = clamp(target.y + 8, floorTop() + 40, h - 6);
+      const goalX = clamp(target.x, edge(), w - edge());
+      const goalY = clamp(target.y + 8, floorTop() + 40, floorEnd());
 
       // Pumpkin goes straight for the dot.
       {
         const c = pumpkin;
-        const dx = target.x - c.x;
+        const dx = goalX - c.x;
         const dy = goalY - c.y;
         const d = Math.hypot(dx, dy);
         if (now > c.until) {
@@ -95,19 +102,26 @@ export function PlayRoom({ hint }: { hint: string }) {
         c.el.classList.toggle("is-wiggle", c.pose === "pounce");
       }
 
-      // Daisy follows where the dot was a second ago, slowly, and only if it's worth getting up.
+      // Daisy follows a beat behind Pumpkin, slowly, and only if it's worth getting up.
       {
         const c = daisy;
         const past = history[0] ?? target;
-        const side = c.x < pumpkin.x ? -1 : 1;
-        const px = clamp(past.x + side * 150, 80, w - 80); // she keeps a polite distance from Pumpkin
-        const py = clamp(past.y + 14, floorTop() + 50, h - 4);
+        // She keeps a polite distance from Pumpkin on the side she's already on, and only crosses
+        // over when that side is squeezed against a wall (which happens a lot on a narrow phone).
+        const spot = (side: number) => clamp(pumpkin.x + side * gap(), edge(), w - edge());
+        let side = c.x < pumpkin.x ? -1 : 1;
+        if (Math.abs(spot(side) - pumpkin.x) < personalSpace()) side = -side;
+        const px = spot(side);
+        const py = clamp(past.y + 14, floorTop() + 50, floorEnd());
         const dx = px - c.x;
         const dy = py - c.y;
         const d = Math.hypot(dx, dy);
+        // Never lie on top of each other: if Pumpkin lands on her, she gets up and moves to her spot.
+        const crowded = Math.abs(c.x - pumpkin.x) < personalSpace() && Math.abs(c.y - pumpkin.y) < 60;
+        if (crowded && c.pose === "loaf") c.until = Math.min(c.until, now + 300);
         if (now > c.until) {
-          if (d > 160 || (c.pose === "walk" && d > 50)) {
-            const speed = Math.min(d * 0.03, 2.6);
+          if (d > 160 || (c.pose === "walk" && d > 50) || (crowded && d > 8)) {
+            const speed = Math.min(d * 0.03, crowded ? 3.2 : 2.6);
             c.x += (dx / d) * speed;
             c.y += (dy / d) * speed;
             if (Math.abs(dx) > 3) c.face = dx > 0 ? 1 : -1;
@@ -115,13 +129,9 @@ export function PlayRoom({ hint }: { hint: string }) {
           } else {
             setPose(c, "loaf", now, 1800); // and once down, she stays down a while
           }
+        } else if (crowded && c.pose === "walk" && d > 8) {
+          c.x = clamp(c.x + Math.sign(dx) * 1.6, edge(), w - edge()); // already up: shuffle towards her spot
         }
-      }
-
-      // Never lie on top of each other: if they end up overlapping, Daisy shuffles aside.
-      const sepX = daisy.x - pumpkin.x;
-      if (Math.abs(sepX) < 120 && Math.abs(daisy.y - pumpkin.y) < 60) {
-        daisy.x = clamp(daisy.x + (sepX >= 0 ? 1.6 : -1.6), 80, w - 80);
       }
 
       draw(pumpkin);
@@ -167,8 +177,8 @@ export function PlayRoom({ hint }: { hint: string }) {
       w = roomEl.clientWidth;
       h = roomEl.clientHeight;
       for (const c of [pumpkin, daisy]) {
-        c.x = clamp(c.x, 40, w - 40);
-        c.y = clamp(c.y, floorTop() + 40, h - 4);
+        c.x = clamp(c.x, edge(), w - edge());
+        c.y = clamp(c.y, floorTop() + 40, floorEnd());
       }
       draw(pumpkin);
       draw(daisy);
@@ -232,7 +242,8 @@ export function PlayRoom({ hint }: { hint: string }) {
       </div>
 
       <p className="playroom__hint hand" aria-hidden="true">
-        {hint}
+        <span className="playroom__hint--mouse">{hint}</span>
+        <span className="playroom__hint--touch">{touchHint}</span>
       </p>
     </div>
   );

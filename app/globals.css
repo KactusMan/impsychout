@@ -40,6 +40,9 @@ html { font-size: 16px; }
 
 *, *::before, *::after { box-sizing: border-box; }
 html { scroll-behavior: smooth; scroll-padding-top: 6rem; }
+/* The canvas behind the page (what shows when a phone overscrolls past the footer, or under
+   Safari's floating toolbar) matches the footer's last colour instead of a cream strip. */
+html { background-color: #d9e5f4; }
 body {
   margin: 0;
   font-family: var(--f-body);
@@ -49,6 +52,7 @@ body {
   background: var(--paper) var(--noise);
   -webkit-font-smoothing: antialiased;
   overflow-x: clip;
+  min-height: 100vh;
 }
 img { max-width: 100%; display: block; height: auto; }
 a { color: inherit; }
@@ -135,6 +139,13 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .gum:focus-visible { outline: none; }
 .gum:focus-visible .gum__face { outline: 3px solid var(--cornflower); outline-offset: 3px; }
 .gum[disabled] { cursor: progress; opacity: .7; }
+/* Phones can't hover, so there the layers sit lifted all the time and a tap presses them flat. */
+@media (hover: none) {
+  .gum .gum__face { transform: translate(-.2rem, -.2rem); }
+  .gum .gum__layer--mid { transform: translate(.08rem, .08rem); }
+  .gum .gum__layer--back { transform: translate(.32rem, .32rem); }
+  .gum:active .gum__face, .gum:active .gum__layer { transform: translate(.05rem, .05rem); transition-duration: .08s; }
+}
 .gum--paper { --face: var(--paper); --face-ink: var(--navy); --mid: var(--sky-deep); --back: var(--navy); }
 .gum--lg { font-size: 1.05rem; }
 .gum--lg .gum__face { min-height: 3.85rem; padding: 1.2em 1.8em; }
@@ -540,6 +551,11 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 }
 .playroom__hint { position: absolute; left: 1rem; bottom: .7rem; z-index: 6; margin: 0; color: var(--denim); font-size: 1.05rem; opacity: .9; transition: opacity .4s var(--ease-out); }
 .playroom.is-playing .playroom__hint { opacity: 0; }
+.playroom__hint--touch { display: none; }
+@media (hover: none) {
+  .playroom__hint--mouse { display: none; }
+  .playroom__hint--touch { display: inline; }
+}
 
 /* ---------- focus cards ---------- */
 .focus { padding: 6rem 0; }
@@ -1061,12 +1077,16 @@ html.a11y-contrast .card--blue, html.a11y-contrast .card--blue p, html.a11y-cont
 html.a11y-readable body, html.a11y-readable :is(p, li, a, button, input, textarea, select, label, span, dd, dt, h1, h2, h3, blockquote, figcaption, .display, .hand, .eyebrow, .brand__name) {
   font-family: var(--font-readable), Verdana, sans-serif !important; font-style: normal !important; letter-spacing: .01em;
 }
-html.a11y-links a { text-decoration: underline !important; text-decoration-thickness: 2px !important; text-underline-offset: 3px; background: rgba(247, 223, 143, .55); border-radius: 3px; }
+html.a11y-links a { text-decoration: underline !important; text-decoration-thickness: 2px !important; text-underline-offset: 3px; border-radius: 3px; }
+/* text links get a butter highlight with dark text, so they stay readable on any colour */
+html.a11y-links a:not(.card, .gum, .polaroid, .brand, .skip, .svc__related-card) { background: rgba(247, 223, 143, .7); color: var(--navy) !important; }
+/* cards, photos and buttons keep their own colours and get a clear dashed outline instead */
+html.a11y-links :is(.card, .gum, .polaroid, .svc__related-card) { outline: 3px dashed var(--navy); outline-offset: 4px; }
 html.a11y-spacing body { word-spacing: .14em; letter-spacing: .03em; }
 html.a11y-spacing :is(p, li, dd, blockquote) { line-height: 2 !important; }
 html.a11y-calm *, html.a11y-calm *::before, html.a11y-calm *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 html.a11y-cursor, html.a11y-cursor * { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44' viewBox='0 0 24 24'%3E%3Cpath d='M5 3l14 8-6 1.5 3.5 6.5-2.6 1.4-3.5-6.6L6 18z' fill='%231f2f57' stroke='white' stroke-width='1.4'/%3E%3C/svg%3E") 4 2, auto !important; }
-html.a11y-mono body { filter: saturate(.25); }
+.mono-layer { position: fixed; inset: 0; z-index: 139; pointer-events: none; -webkit-backdrop-filter: saturate(.25); backdrop-filter: saturate(.25); }
 
 /* ---------- responsive ---------- */
 @media (max-width: 1180px) {
@@ -1120,6 +1140,7 @@ html.a11y-mono body { filter: saturate(.25); }
   .about__pinned { position: relative !important; top: auto; left: auto; width: 100%; margin-bottom: 1rem; transform: rotate(-1deg); }
   .about__room { padding-top: 0; }
   .playroom { height: 22rem; }
+  .playroom__hint { top: .7rem; bottom: auto; left: .7rem; right: auto; max-width: calc(100% - 1.4rem); padding: .1rem .6rem; border-radius: 999px; background: rgba(255, 253, 248, .88); font-size: .98rem; } /* up on the wall, out of the cats' way */
   .cat--pumpkin .cat__pose--trot, .cat--pumpkin .cat__pose--pounce { width: 112px; }
   .cat--pumpkin .cat__pose--sit { width: 74px; }
   .cat--daisy .cat__pose--walk, .cat--daisy .cat__pose--loaf { width: 128px; }
@@ -1132,6 +1153,7 @@ html.a11y-mono body { filter: saturate(.25); }
   .footer__grid { grid-template-columns: 1fr 1fr; }
   .footer__grid > div:first-child { grid-column: 1 / -1; }
   .footer__base { flex-direction: column; align-items: flex-start; }
+  .footer { padding-bottom: 6.5rem; } /* room for the accessibility button so it never covers the legal links */
   .consent__actions { grid-template-columns: 1fr; }
   .a11y__grid { grid-template-columns: 1fr; }
   .legal__body { padding: 1.5rem 1.2rem; }

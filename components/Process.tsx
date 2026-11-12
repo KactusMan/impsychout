@@ -27,10 +27,11 @@ export function Process({ c }: { c: Copy["process"] }) {
     track.current.scrollTo({ left: el.offsetLeft - track.current.offsetLeft - (track.current.clientWidth - el.clientWidth) / 2, behavior: "smooth" });
   }, []);
 
-  // Which card is centred.
+  // Which card is centred. Each new step plays its own note, so moving forward climbs gently.
   useEffect(() => {
     const t = track.current!;
     let raf = 0;
+    let shown = 0;
     const onScroll = () => {
       cancelAnimationFrame(raf);
       raf = requestAnimationFrame(() => {
@@ -44,10 +45,11 @@ export function Process({ c }: { c: Copy["process"] }) {
             best = i;
           }
         });
-        setIndex((prev) => {
-          if (prev !== best) play("slide");
-          return best;
-        });
+        if (best !== shown) {
+          shown = best;
+          setIndex(best);
+          play("step", best);
+        }
       });
     };
     t.addEventListener("scroll", onScroll, { passive: true });

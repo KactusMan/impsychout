@@ -3,7 +3,8 @@
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
+import { useA11y } from "./A11y";
 import { GumButton } from "./GumButton";
 import { useSound } from "./SoundProvider";
 import type { Copy } from "@/lib/copy";
@@ -64,15 +65,33 @@ export function Untangle({ c }: { c: Copy["untangle"] }) {
   const thread = useRef<SVGPathElement>(null);
   const shadow = useRef<SVGPathElement>(null);
   const { play } = useSound();
+  // "Pause motion" in the accessibility toolbar: no pinning, just show the calm, untangled end state.
+  const calm = useA11y().prefs.calm;
+
+  // Text size, fonts and spacing from the toolbar change how tall this section is, so the pin
+  // has to measure again or the bottom of the section gets cut off.
+  useEffect(() => {
+    let t = 0;
+    const refresh = () => {
+      clearTimeout(t);
+      t = window.setTimeout(() => ScrollTrigger.refresh(), 60);
+    };
+    window.addEventListener("a11y:change", refresh);
+    void document.fonts?.ready.then(refresh);
+    return () => {
+      clearTimeout(t);
+      window.removeEventListener("a11y:change", refresh);
+    };
+  }, []);
 
   useGSAP(
     () => {
       const cards = gsap.utils.toArray<HTMLElement>(".thought");
-      const flipped = cards.map(() => false);
+      const flipped = cards.map((c) => c.classList.contains("is-reframed"));
       const ball = root.current!.querySelector<SVGGElement>(".untangle__ball")!;
       const meter = root.current!.querySelector<HTMLElement>(".untangle__meter span")!;
 
-      const render = (u: number) => {
+      const render = (u: number, silent = false) => {
         const d = toPath(blend(u));
         thread.current!.setAttribute("d", d);
         shadow.current!.setAttribute("d", d);
@@ -84,14 +103,18 @@ export function Untangle({ c }: { c: Copy["untangle"] }) {
           if (on !== flipped[i]) {
             flipped[i] = on;
             c.classList.toggle("is-reframed", on);
-            if (on) play("marimba");
+            if (on && !silent) play("marimba");
           }
         });
       };
 
       const mm = gsap.matchMedia();
       mm.add("(prefers-reduced-motion: no-preference)", () => {
-        render(0);
+        if (calm) {
+          render(1, true);
+          return;
+        }
+        render(0, true);
         const st = ScrollTrigger.create({
           trigger: root.current,
           start: "top top",
@@ -102,7 +125,7 @@ export function Untangle({ c }: { c: Copy["untangle"] }) {
         });
         return () => st.kill();
       });
-      mm.add("(prefers-reduced-motion: reduce)", () => render(1));
+      mm.add("(prefers-reduced-motion: reduce)", () => render(1, true));
 
       gsap.from(".untangle__copy > *", {
         y: 18,
@@ -114,7 +137,7 @@ export function Untangle({ c }: { c: Copy["untangle"] }) {
       });
       return () => mm.revert();
     },
-    { scope: root }
+    { scope: root, dependencies: [calm], revertOnUpdate: true }
   );
 
   return (

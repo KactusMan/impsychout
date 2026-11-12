@@ -56,6 +56,10 @@ export function A11yProvider({ children }: { children: ReactNode }) {
     try {
       localStorage.setItem(KEY, JSON.stringify(prefs));
     } catch {}
+    // Let sections that measure themselves (the pinned "untangle" story) re-measure for the new
+    // text size, font or spacing, so nothing gets cut off.
+    const raf = requestAnimationFrame(() => window.dispatchEvent(new Event("a11y:change")));
+    return () => cancelAnimationFrame(raf);
   }, [prefs]);
 
   const set = useCallback((p: Partial<Prefs>) => setPrefs((cur) => ({ ...cur, ...p })), []);
@@ -65,6 +69,9 @@ export function A11yProvider({ children }: { children: ReactNode }) {
     <A11yContext.Provider value={{ prefs, set, reset }}>
       <MotionConfig reducedMotion={prefs.calm ? "always" : "user"}>{children}</MotionConfig>
       {prefs.guide && <ReadingGuide />}
+      {/* Reduce colour: a see-through layer that desaturates whatever is behind it. (A filter on
+          the page itself would knock the header and this toolbar out of their fixed positions.) */}
+      {prefs.mono && <div className="mono-layer" aria-hidden="true" />}
     </A11yContext.Provider>
   );
 }

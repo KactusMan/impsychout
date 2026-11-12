@@ -56,6 +56,7 @@ export const defaultCopy = {
     noteTitle: "beyond the clinic",
     noteBody: "Reader of existential philosophy, reflective essayist, musician, cosy gamer, and proud cat mom to two delightfully chaotic felines.",
     playHint: "move your cursor in here, Pumpkin is ready",
+    playHintTouch: "tap anywhere in the room, Pumpkin is ready",
     pumpkin: "Chases everything. Zero chill. Will pounce on your cursor.",
     daisy: "Supervises. Gets there eventually, then has a little lie down.",
   },
