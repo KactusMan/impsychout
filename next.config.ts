@@ -5,9 +5,9 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       { source: "/services/schizophrenia-spectrum", destination: "/services", permanent: true },
-      // The site lives at impsychout.com now: send anyone (and any search engine) on the old
-      // vercel.app address to the same page there, so there's only one copy of the site.
-      { source: "/:path*", has: [{ type: "host", value: "impsychout.vercel.app" }], destination: "https://impsychout.com/:path*", permanent: true },
+      // The site lives at www.impsychout.com now (Vercel sends impsychout.com there too): send
+      // anyone, and any search engine, on the old vercel.app address straight to the same page.
+      { source: "/:path*", has: [{ type: "host", value: "impsychout.vercel.app" }], destination: "https://www.impsychout.com/:path*", permanent: true },
     ];
   },
   async headers() {
