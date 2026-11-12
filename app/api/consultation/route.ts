@@ -8,26 +8,35 @@ import { followUpEmail, notificationEmail, type Request as ConsultationRequest }
 // Environment variables (Vercel → Project → Settings → Environment Variables):
 //   RESEND_API_KEY            required
 //   CONSULTATION_TO_EMAIL     optional, defaults to impsychout@gmail.com
-//   CONSULTATION_FROM_EMAIL   optional, e.g. "Laraib at ImPsychOut <hello@yourdomain.com>"
+//   CONSULTATION_FROM_EMAIL   optional, defaults to "Laraib at ImPsychOut <hello@impsychout.com>"
 //
-// Until a domain is verified in Resend, emails come from onboarding@resend.dev and Resend only
-// delivers to the address that owns the Resend account. The follow-up to clients needs a
+// Emails come from impsychout.com once that domain is verified in Resend. Until then Resend
+// refuses it, so Laraib's copy is re-sent from Resend's shared onboarding@resend.dev address
+// (which only delivers to the Resend account's owner). The follow-up to clients needs the
 // verified domain; if Resend refuses it, the request still goes through and Laraib still hears
 // about it. Without RESEND_API_KEY the route answers 503 so the form points people to Instagram.
 
 const TO = process.env.CONSULTATION_TO_EMAIL || "impsychout@gmail.com";
-const FROM = process.env.CONSULTATION_FROM_EMAIL || "ImPsychOut <onboarding@resend.dev>";
+const FROM = process.env.CONSULTATION_FROM_EMAIL || "Laraib at ImPsychOut <hello@impsychout.com>";
+const FALLBACK_FROM = "ImPsychOut <onboarding@resend.dev>";
 
 const clean = (v: unknown, max = 2000) => (typeof v === "string" ? v.trim().slice(0, max) : "");
 
-async function send(key: string, email: Record<string, unknown>) {
+async function sendFrom(key: string, from: string, email: Record<string, unknown>) {
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ from: FROM, ...email }),
+    body: JSON.stringify({ from, ...email }),
   });
-  if (!res.ok) console.error(`[consultation] Resend ${res.status}: ${(await res.text()).slice(0, 300)}`);
-  return res.ok;
+  if (!res.ok) console.error(`[consultation] Resend ${res.status} from ${from}: ${(await res.text()).slice(0, 300)}`);
+  return res;
+}
+
+// Try the real address first; if Resend says the domain isn't verified yet (403), use its shared one.
+async function send(key: string, email: Record<string, unknown>) {
+  const res = await sendFrom(key, FROM, email);
+  if (res.ok || res.status !== 403 || FROM === FALLBACK_FROM) return res.ok;
+  return (await sendFrom(key, FALLBACK_FROM, email)).ok;
 }
 
 export async function POST(req: Request) {

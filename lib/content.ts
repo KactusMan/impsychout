@@ -3,7 +3,7 @@
 
 export const site = {
   name: "ImPsychOut",
-  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://impsychout.vercel.app",
+  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://impsychout.com",
   instagram: "https://www.instagram.com/impsychout/",
   therapist: "Laraib Fatima Ahmed",
   title: "Online Therapy with Clinical Psychologist Laraib Fatima Ahmed",

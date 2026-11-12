@@ -30,6 +30,6 @@ Set these in Vercel → Project → Settings → Environment Variables, then red
 
 - `RESEND_API_KEY` (required)
 - `CONSULTATION_TO_EMAIL` (optional, defaults to `impsychout@gmail.com`)
-- `CONSULTATION_FROM_EMAIL` (optional, e.g. `Laraib at ImPsychOut <hello@yourdomain.com>`, needs a domain verified in Resend)
+- `CONSULTATION_FROM_EMAIL` (optional, defaults to `Laraib at ImPsychOut <hello@impsychout.com>`)
 
-Until a domain is verified, Resend sends from `onboarding@resend.dev` and only delivers to the email address that owns the Resend account, so the follow-up to clients is skipped (the request itself still goes through). Without `RESEND_API_KEY` the form tells people to message on Instagram instead.
+Emails come from `hello@impsychout.com` once the domain is verified in Resend (DNS records live in Vercel, since Vercel runs the domain's DNS). Until then the request to Laraib is re-sent from `onboarding@resend.dev`, which only delivers to the email address that owns the Resend account, and the follow-up to clients is skipped (the request itself still goes through). Replies to the follow-up go to `impsychout@gmail.com`. Without `RESEND_API_KEY` the form tells people to message on Instagram instead.
