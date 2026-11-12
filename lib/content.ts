@@ -6,6 +6,7 @@ export const site = {
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.impsychout.com",
   instagram: "https://www.instagram.com/impsychout/",
   therapist: "Laraib Fatima Ahmed",
+  email: "hello@impsychout.com",
   title: "Online Therapy with Clinical Psychologist Laraib Fatima Ahmed",
   description:
     "Online therapy for teens, young adults and adults with clinical psychologist Laraib Fatima Ahmed. Warm, evidence-based support for anxiety, low mood, OCD, neurodiversity and more. Request a free 15-minute consultation.",

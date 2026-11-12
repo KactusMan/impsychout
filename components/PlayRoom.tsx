@@ -226,17 +226,17 @@ export function PlayRoom({ hint, touchHint }: { hint: string; touchHint: string 
 
       <div className="cat cat--pumpkin" ref={pumpkinEl} data-pose="sit" data-face="right" aria-hidden="true">
         <div className="cat__flip">
-          <img className="cat__pose cat__pose--trot" src="/art/pumpkin-trot.webp" alt="" width={507} height={520} draggable={false} />
-          <img className="cat__pose cat__pose--pounce" src="/art/pumpkin-pounce.webp" alt="" width={520} height={392} draggable={false} />
-          <img className="cat__pose cat__pose--sit" src="/art/pumpkin-sit.webp" alt="" width={356} height={520} draggable={false} />
+          <img className="cat__pose cat__pose--trot" src="/art/pumpkin-trot-sm.webp" srcSet="/art/pumpkin-trot-sm.webp 300w, /art/pumpkin-trot.webp 507w" sizes="(max-width: 640px) 112px, 150px" loading="lazy" decoding="async" alt="" width={507} height={520} draggable={false} />
+          <img className="cat__pose cat__pose--pounce" src="/art/pumpkin-pounce-sm.webp" srcSet="/art/pumpkin-pounce-sm.webp 312w, /art/pumpkin-pounce.webp 520w" sizes="(max-width: 640px) 112px, 156px" loading="lazy" decoding="async" alt="" width={520} height={392} draggable={false} />
+          <img className="cat__pose cat__pose--sit" src="/art/pumpkin-sit-sm.webp" srcSet="/art/pumpkin-sit-sm.webp 196w, /art/pumpkin-sit.webp 356w" sizes="98px" loading="lazy" decoding="async" alt="" width={356} height={520} draggable={false} />
         </div>
         <span className="cat__tag hand">Pumpkin</span>
       </div>
 
       <div className="cat cat--daisy" ref={daisyEl} data-pose="loaf" data-face="left" aria-hidden="true">
         <div className="cat__flip">
-          <img className="cat__pose cat__pose--walk" src="/art/daisy-walk.webp" alt="" width={520} height={340} draggable={false} />
-          <img className="cat__pose cat__pose--loaf" src="/art/daisy-loaf.webp" alt="" width={520} height={273} draggable={false} />
+          <img className="cat__pose cat__pose--walk" src="/art/daisy-walk-sm.webp" srcSet="/art/daisy-walk-sm.webp 344w, /art/daisy-walk.webp 520w" sizes="172px" loading="lazy" decoding="async" alt="" width={520} height={340} draggable={false} />
+          <img className="cat__pose cat__pose--loaf" src="/art/daisy-loaf-sm.webp" srcSet="/art/daisy-loaf-sm.webp 336w, /art/daisy-loaf.webp 520w" sizes="168px" loading="lazy" decoding="async" alt="" width={520} height={273} draggable={false} />
         </div>
         <span className="cat__tag hand">Daisy</span>
       </div>

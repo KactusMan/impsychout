@@ -10,6 +10,8 @@ npm run dev     # http://localhost:4321
 npm run build
 ```
 
+Checks for what search engines, AI agents and Lighthouse read (contact page, llms.txt, structured data, backend kept out of search): with the site running, `npm test`, or `BASE_URL=https://www.impsychout.com npm test` for the live site.
+
 ## Where things live
 
 - `lib/content.ts`: all page copy (no em dashes, please)

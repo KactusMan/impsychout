@@ -9,6 +9,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     { url: site.url, lastModified: now, changeFrequency: "monthly", priority: 1, images: [`${site.url}${portrait}`] },
     { url: `${site.url}/services`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${site.url}/contact`, lastModified: now, changeFrequency: "yearly", priority: 0.5 },
     ...["privacy", "cookies", "terms", "accessibility"].map((p) => ({
       url: `${site.url}/${p}`,
       lastModified: now,

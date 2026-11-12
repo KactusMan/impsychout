@@ -45,6 +45,20 @@ export const jsonLd = {
       founder: { "@id": `${site.url}/#laraib` },
       employee: { "@id": `${site.url}/#laraib` },
       sameAs: [site.instagram],
+      // What the practice is, in the words people search with (and that appear on the page).
+      // Agents such as Is Agentic read these to check the brand can be found for its main service.
+      keywords: "online therapy, clinical psychologist, CBT, DBT, anxiety, OCD, neurodiversity",
+      serviceType: "Online therapy",
+      knowsAbout: ["Online therapy", ...focusAreas.map((f) => f.title), ...approaches.map((a) => a.name)],
+      email: site.email,
+      contactPoint: {
+        "@type": "ContactPoint",
+        contactType: "New client enquiries",
+        email: site.email,
+        url: `${site.url}/contact`,
+        availableLanguage: ["English"],
+        areaServed: "Worldwide",
+      },
       areaServed: "Worldwide (online)",
       availableLanguage: ["English"],
       medicalSpecialty: "Psychiatric",

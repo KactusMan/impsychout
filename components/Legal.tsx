@@ -6,11 +6,11 @@ import type { ReactNode } from "react";
 export const LEGAL_UPDATED = "1 November 2026";
 export const CONTACT = {
   name: "Laraib Fatima Ahmed, trading as ImPsychOut",
-  email: "[contact email]",
+  email: "hello@impsychout.com",
   address: "[postal address or country of operation]",
 };
 
-export function LegalPage({ title, intro, children }: { title: string; intro: string; children: ReactNode }) {
+export function LegalPage({ title, intro, children, updated = true }: { title: string; intro: string; children: ReactNode; updated?: boolean }) {
   return (
     <article className="legal section--lined">
       <div className="container container--narrow">
@@ -23,7 +23,7 @@ export function LegalPage({ title, intro, children }: { title: string; intro: st
           </ol>
         </nav>
         <h1 className="display svc__title">{title}</h1>
-        <p className="legal__updated">Last updated {LEGAL_UPDATED}</p>
+        {updated && <p className="legal__updated">Last updated {LEGAL_UPDATED}</p>}
         <p className="svc__answer">{intro}</p>
         <div className="legal__body">{children}</div>
       </div>

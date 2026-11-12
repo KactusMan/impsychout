@@ -272,6 +272,7 @@ export function Footer({ c, instagram }: { c: Copy["footer"]; instagram: string 
           <span className="hand footer__sign">{c.sign}</span> © {new Date().getFullYear()} ImPsychOut. {c.legal}
         </p>
         <nav className="footer__legal" aria-label="Legal">
+          <Link href="/contact">Contact</Link>
           <Link href="/privacy">Privacy</Link>
           <Link href="/cookies">Cookies</Link>
           <Link href="/terms">Terms</Link>

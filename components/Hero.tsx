@@ -9,11 +9,9 @@ import { Doodle } from "./Doodles";
 import { GumButton } from "./GumButton";
 
 const ease = [0.22, 1, 0.36, 1] as const;
-const rise = (delay: number) => ({
-  initial: { opacity: 0, y: 16 },
-  animate: { opacity: 1, y: 0 },
-  transition: { delay, duration: 0.8, ease },
-});
+// The headline and intro rise in with a CSS animation (.rise in globals.css), not Framer Motion:
+// CSS starts on the very first paint, so the text doesn't sit invisible while JavaScript loads
+// on a slow phone. That wait was the page's slowest load metric.
 const fade = (delay: number) => ({
   initial: { opacity: 0 },
   animate: { opacity: 1 },
@@ -98,15 +96,15 @@ export function Hero({ c }: { c: Copy["hero"] }) {
       <div className="hero__grid-paper" aria-hidden="true" />
 
       <div className="hero__copy">
-        <motion.p className="hand hero__hello" {...rise(0)}>
+        <p className="hand hero__hello rise" style={{ ["--d" as string]: "0s" }}>
           {c.hello} <Doodle name="sparkle" className="ico" />
-        </motion.p>
+        </p>
 
         <h1 className="display hero__title" id="hero-title">
-          <motion.span className="hero__line" {...rise(0.08)}>
+          <span className="hero__line rise" style={{ ["--d" as string]: "0.08s" }}>
             {c.line1}
-          </motion.span>
-          <motion.span className="hero__line hero__line--soft" {...rise(0.18)}>
+          </span>
+          <span className="hero__line hero__line--soft rise" style={{ ["--d" as string]: "0.18s" }}>
             {c.line2}{" "}
             <em className="marked">
               {c.underlined}
@@ -123,26 +121,26 @@ export function Hero({ c }: { c: Copy["hero"] }) {
                 />
               </svg>
             </em>
-          </motion.span>
+          </span>
         </h1>
 
-        <motion.p className="lead" {...rise(0.3)}>
+        <p className="lead rise" style={{ ["--d" as string]: "0.3s" }}>
           {c.lead}
-        </motion.p>
+        </p>
 
-        <motion.div className="hero__ctas" {...rise(0.4)}>
+        <div className="hero__ctas rise" style={{ ["--d" as string]: "0.4s" }}>
           <GumButton href="#book" size="lg">{c.primaryButton}</GumButton>
           <GumButton href="#focus" size="lg" variant="paper">{c.secondaryButton}</GumButton>
-        </motion.div>
+        </div>
 
-        <motion.ul className="hero__trust" {...rise(0.5)}>
+        <ul className="hero__trust rise" style={{ ["--d" as string]: "0.5s" }}>
           {c.trust.map((text, i) => (
             <li key={text}>
               <Doodle name={(["heart", "star", "flower"] as const)[i % 3]} />
               {text}
             </li>
           ))}
-        </motion.ul>
+        </ul>
       </div>
 
       <Tidy.Provider value={{ round, moved: () => setMessy(true) }}>

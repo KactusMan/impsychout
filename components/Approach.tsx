@@ -6,6 +6,9 @@ import type { Copy } from "@/lib/copy";
 import { SectionHead } from "./Sections";
 import { useSound } from "./SoundProvider";
 
+// White tab labels only read clearly on the two darkest folder colours; the lighter tabs get ink text.
+const DARK_TABS = new Set(["var(--navy)", "var(--denim)"]);
+
 // A literal file folder: coloured index dividers stick out of the top, the chosen sheet is
 // pulled up out of the folder (with a paper sound), and the front cover keeps the rest tucked in.
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -67,6 +70,7 @@ export function Approach({ c }: { c: Copy["approach"] }) {
                 aria-selected={i === current}
                 tabIndex={i === current ? 0 : -1}
                 className="file__tab"
+                data-ink={DARK_TABS.has(ap.color) ? undefined : ""}
                 style={{ ["--c" as string]: ap.color }}
                 onClick={() => select(i)}
                 onKeyDown={(e) => onKey(e, i)}
@@ -84,7 +88,7 @@ export function Approach({ c }: { c: Copy["approach"] }) {
 
           <div className="file__slot">
             <AnimatePresence mode="wait" initial={false}>
-              <motion.article
+              <motion.div
                 key={a.id}
                 className="file__sheet"
                 role="tabpanel"
@@ -101,7 +105,7 @@ export function Approach({ c }: { c: Copy["approach"] }) {
                 <h3>{a.title}</h3>
                 <p className="file__body">{a.body}</p>
                 <p className="file__note hand">{a.note}</p>
-              </motion.article>
+              </motion.div>
             </AnimatePresence>
           </div>
 
