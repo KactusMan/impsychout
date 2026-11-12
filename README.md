@@ -15,7 +15,9 @@ npm run build
 - `lib/content.ts`: all page copy (no em dashes, please)
 - `lib/schema.ts`: JSON-LD structured data, built from the content
 - `components/`: one file per section; `SoundProvider.tsx` handles the calm UI sounds, `GumButton.tsx` the Gumroad-style buttons
-- `app/sitemap.ts`, `app/robots.ts`, `app/manifest.ts`, `public/llms.txt`: SEO and agent readability
+- `app/sitemap.ts`, `app/robots.ts`, `app/manifest.ts`: SEO
+- `lib/agent.ts`: what AI assistants read, built from the live copy: `/llms.txt`, `/llms-full.txt`, and a Markdown version of every page for requests with `Accept: text/markdown` (see `middleware.ts`)
+- `/safehaven`: the private backend. Keep every backend page under it: login, `noindex` headers and robots rules then apply automatically
 - `public/sfx/`: sound effects, credits in `public/sfx/CREDITS.md`
 - `.claude/skills/seo-check/`: SEO checklist skill for Claude Code
 

@@ -2,23 +2,25 @@ import "server-only";
 import { unstable_cache } from "next/cache";
 import { defaultCopy, type Copy } from "./copy";
 
-// Laraib's edits are stored as one JSON document. On Vercel it lives in Vercel Blob
-// (needs BLOB_READ_WRITE_TOKEN, added automatically when a Blob store is connected to the project);
-// in local development it falls back to .data/copy.json.
+// Laraib's edits are stored as one JSON document. On Vercel it lives in the project's private
+// Vercel Blob store ("impsychout-blob"): connecting the store adds BLOB_STORE_ID, and the SDK signs
+// in with Vercel's own OIDC token, so there's no secret to manage (an older-style
+// BLOB_READ_WRITE_TOKEN works too). Private means the file can only be read by this site's
+// server, never by URL. In local development it falls back to .data/copy.json.
 const PATH = "cms/copy.json";
 export const COPY_TAG = "copy";
 
 type Json = unknown;
 
+const blobConnected = () => Boolean(process.env.BLOB_STORE_ID || process.env.BLOB_READ_WRITE_TOKEN);
+
 async function readStored(): Promise<Json | null> {
-  if (process.env.BLOB_READ_WRITE_TOKEN) {
-    const { list } = await import("@vercel/blob");
-    const { blobs } = await list({ prefix: PATH, limit: 1 });
-    const b = blobs.find((x) => x.pathname === PATH);
-    if (!b) return null;
-    // cache-bust with the upload time so a fresh save is never served stale from the CDN
-    const res = await fetch(`${b.url}?v=${new Date(b.uploadedAt).getTime()}`, { cache: "no-store" });
-    return res.ok ? res.json() : null;
+  if (blobConnected()) {
+    const { get } = await import("@vercel/blob");
+    // useCache: false so a save shows up straight away instead of waiting on a cached copy
+    const res = await get(PATH, { access: "private", useCache: false });
+    if (!res || res.statusCode !== 200 || !res.stream) return null;
+    return new Response(res.stream).json();
   }
   if (process.env.NODE_ENV !== "production" || !process.env.VERCEL) {
     try {
@@ -32,14 +34,14 @@ async function readStored(): Promise<Json | null> {
 }
 
 export function storageReady() {
-  return Boolean(process.env.BLOB_READ_WRITE_TOKEN) || !process.env.VERCEL;
+  return blobConnected() || !process.env.VERCEL;
 }
 
 export async function writeStored(data: Json) {
   const body = JSON.stringify(data, null, 2);
-  if (process.env.BLOB_READ_WRITE_TOKEN) {
+  if (blobConnected()) {
     const { put } = await import("@vercel/blob");
-    await put(PATH, body, { access: "public", contentType: "application/json", addRandomSuffix: false, allowOverwrite: true, cacheControlMaxAge: 60 });
+    await put(PATH, body, { access: "private", contentType: "application/json", addRandomSuffix: false, allowOverwrite: true });
     return;
   }
   if (process.env.VERCEL) throw new Error("storage_not_connected");
